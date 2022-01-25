@@ -1,4 +1,9 @@
 {
+    "name":"modular-backend-services",
+    "version":"0.0.1",
+    "description":"Backend services for Modular Project",
+    "main":"app.js",
+    "author":"David Mariscal",
     "scripts": {
         "start": "nodemon ./app.js"
     },
