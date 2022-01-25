@@ -5,14 +5,11 @@
     "main": "app.js",
     "author": "David Mariscal",
     "scripts": {
-        "start": "nodemon ./app.js"
+        "start": "node app.js"
     },
     "dependencies": {
         "body-parser": "^1.19.1",
         "express": "^4.17.2",
-        "@faker-js/faker": "^6.0.0-alpha.5"
-    },
-    "devDependencies": {
         "@faker-js/faker": "^6.0.0-alpha.5"
     }
 }

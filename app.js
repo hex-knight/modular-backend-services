@@ -11,6 +11,10 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 //Routes
+app.get('/', (req,res)=>{
+  res.send('Up and Running!');
+})
+
 app.get('/health', function (req, res) {
   res.json({ body: 'Backend services up and running!' })
 })
