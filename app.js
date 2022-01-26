@@ -1,10 +1,15 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const { retrieveUsers, validateUser, saveUser } = require('./Controllers/UsersController')
+const express = require('express');
+const bodyParser = require('body-parser');
+const { getUsers, getUser, 
+  validateUser, saveUser,
+  deleteUser, updateUser
+} = require('./Controllers/UsersController');
+var cors = require('cors');
 
 //Variables: 
 var app = express()
 var port = process.env.PORT || 8080
+app.use(cors())
 
 //Settings: 
 app.use(bodyParser.urlencoded({ extended: true }))
