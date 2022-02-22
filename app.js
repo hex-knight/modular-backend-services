@@ -2,8 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { getUsers, getUser, 
   validateUser, saveUser,
-  deleteUser, updateUser
+  deleteUser, updateUser,
 } = require('./Controllers/UsersController');
+const {
+  getQuejas, insertQueja, updateQueja, deleteQueja
+} = require('./Controllers/QuejasController');
 var cors = require('cors');
 
 //Variables: 
@@ -100,6 +103,15 @@ app.get('/getUser/:cedula', function (req, res) {
     body: response
   })
 })
+
+//      QUEJAS
+app.get('/getQuejas', getQuejas );
+
+app.post('/newQueja', insertQueja);
+
+app.post('/updateQueja', updateQueja);
+
+app.get('/deleteQueja/:idQueja', deleteQueja);
 
 //Run Backend Services
 app.listen(port)
