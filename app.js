@@ -2,8 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { getUsers, getUser, 
   validateUser, saveUser,
-  deleteUser, updateUser,
-} = require('./Controllers/UsersController');
+  deleteUser, updateUser, getSolicitudes, insertSolicitud, deleteSolicitud,
+} = require('./Controllers/SolicitudesController');
 const {
   getQuejas, insertQueja, updateQueja, deleteQueja
 } = require('./Controllers/QuejasController');
@@ -112,6 +112,17 @@ app.post('/newQueja', insertQueja);
 app.post('/updateQueja', updateQueja);
 
 app.get('/deleteQueja/:idQueja', deleteQueja);
+
+//    SOLICITUDES
+
+app.get('/getSolicitudes', getSolicitudes);
+
+app.post('/newSolicitud', insertSolicitud);
+
+app.post('/updateSolicitud', updateSolicitud);
+
+app.get('/deleteSolicitud/:idSolicitud', deleteSolicitud);
+
 
 //Run Backend Services
 app.listen(port)
