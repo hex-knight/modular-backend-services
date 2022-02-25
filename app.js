@@ -1,13 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { getUsers, getUser, 
-  validateUser, saveUser,
-  deleteUser, updateUser, getSolicitudes, insertSolicitud, deleteSolicitud,
+const { getSolicitudes, insertSolicitud, deleteSolicitud,
 } = require('./Controllers/SolicitudesController');
 const {
   getQuejas, insertQueja, updateQueja, deleteQueja
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
+const { getUsuarios, insertUsuario } = require('./Controllers/UsuariosController');
 
 //Variables: 
 var app = express()
@@ -25,83 +24,6 @@ app.get('/', (req,res)=>{
 
 app.get('/health', function (req, res) {
   res.json({ body: 'Backend services up and running!' })
-})
-
-app.post('/saveUser', function (req, res) {
-  let user = req.body;
-  let response;
-
-  if (user !== null) {
-      if (validateUser(user)) {
-        response = saveUser(user)
-      } else {
-        response = {
-          body: "Error, some fields are empty.",
-          statusCode: 500
-        }
-      }
-  }
-  res.json(response)
-})
-
-app.post('/updateUser', function (req, res) {
-  let user = req.body;
-  let response;
-
-  if (user !== null) {
-      if (validateUser(user)) {
-        response = updateUser(user)
-      } else {
-        response = {
-          body: "Error, some fields are empty.",
-          statusCode: 500
-        }
-      }
-  }
-  res.json(response)
-})
-
-app.post('/deleteUser', function (req, res) {
-  let user = req.body;
-  let response;
-
-  if (user !== null) {
-      if (validateUser(user)) {
-        response = deleteUser(user)
-      } else {
-        response = {
-          body: "Error, some fields are empty.",
-          statusCode: 500
-        }
-      }
-  }
-  res.json(response)
-})
-
-app.get(
-  '/getUsers',
-  (req, res) => {
-    let response = getUsers();
-    res.json({
-      statusCode: response !== null ? 200 : 500,
-      body: response || "Error"
-    });
-  }
-);
-
-app.get('/getUser/:cedula', function (req, res) {
-  let response = null;
-  var statusCode = 500;
-  if (req.params.cedula) {
-    response = getUser(req.params.cedula);
-    statusCode = response !== null ? 200 : 500;
-  } else {
-    response = "Bad Request: Verify your request."
-  }
-  res.json({
-    statusCode,
-    body: response
-  })
 })
 
 //      QUEJAS
@@ -123,6 +45,11 @@ app.post('/updateSolicitud', updateSolicitud);
 
 app.get('/deleteSolicitud/:idSolicitud', deleteSolicitud);
 
+//    USUARIOS
+
+app.get('/getUsuarios', getUsuarios);
+
+app.post('/newUsuario', insertUsuario);
 
 //Run Backend Services
 app.listen(port)
