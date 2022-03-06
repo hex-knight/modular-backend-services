@@ -50,43 +50,36 @@ insertUsuario = async (req, res) => {
                 await pool.query(`insert into USUARIOS (correo, password, tipo_de_usuario)
                 values ($1, $2, $3)`,
                 [body.usuario, hash, body.tipoUsuario]);
-                // console.log(newUser);
             });
     }
     res.send({
       statusCode: 200,
-      body: "Saved succesfully"
+      body: "Usuario guardado"
     });  
   } catch (error) {
     console.error(error);
     res.send({
       statusCode: 500,
-      body: "There was an error saving the record."
+      body: "Ocurrió un error al guardar el usuario."
     });
   }
 }
 
-updateSolicitud = async (req, res) => {
+updateUsuario = async (req, res) => {
   let body = req.body;
   try {
-    const search = await pool.query('SELECT * FROM SOLICITUDES WHERE id_solicitud IN ($1)', [body.idSolicitud]);
+    const search = await pool.query('SELECT * FROM USUARIOS WHERE correo IN ($1)', [body.correo]);
   if(search.rows.length > 0 ){
-    const update = await pool.query(`UPDATE SOLICITUDES SET documento_cedula = $1, documento_identificacion = $2, documento_solicitud = $3, 
-    documento_titulo = $4, domicilio = $5, email = $6, especialidad = $7, institucion_educativa = $8, licenciatura = $9,
-    nombre_completo = $10, telefono = $11, num_cedula_especialidad = $12, num_cedula_licenciatura = $13 WHERE id_solicitud = $14`,
-    [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud, 
-      body.documentoTitulo, body.domicilio, body.email,
-      body.especialidad, body.institucionEducativa,
-      body.licenciatura, body.nombreCompleto, body.telefono, 
-      body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.idSolicitud ]);
+    const update = await pool.query(`UPDATE USUARIOS SET tipo_de_usuario = $1 WHERE correo = $2`,
+    [body.tipoDeUsuario, body.correo]);
     res.send({
       statusCode: 200,
-      body: `Queja ${body.idSolicitud} actualizada correctamente.`
+      body: `Usuario ${body.correo} actualizado correctamente.`
     });
   }else{
     res.send({
       statusCode: 200,
-      body: "Solicitud no encontrada."
+      body: "Usuario no encontrado."
     });
   } 
   } catch (error) {
@@ -126,8 +119,7 @@ deleteSolicitud = async (req, res) => {
 
 module.exports = {
     getUsuarios,
-    insertUsuario
-    // insertUsuario,
-    // updateUsuario,
+    insertUsuario,
+    updateUsuario,
     // deleteUsuarios
 }

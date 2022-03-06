@@ -6,7 +6,8 @@ const {
   getQuejas, insertQueja, updateQueja, deleteQueja
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
-const { getUsuarios, insertUsuario } = require('./Controllers/UsuariosController');
+const { getUsuarios, insertUsuario, updateUsuario } = require('./Controllers/UsuariosController');
+const { login } = require('./Controllers/AuthController');
 
 //Variables: 
 var app = express()
@@ -50,6 +51,12 @@ app.get('/deleteSolicitud/:idSolicitud', deleteSolicitud);
 app.get('/getUsuarios', getUsuarios);
 
 app.post('/newUsuario', insertUsuario);
+
+app.post('/updateUsuario', updateUsuario);
+
+//    LOGIN
+
+app.post('/login', login)
 
 //Run Backend Services
 app.listen(port)
