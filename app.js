@@ -6,7 +6,7 @@ const {
   getQuejas, insertQueja, updateQueja, deleteQueja
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
-const { getUsuarios, insertUsuario, updateUsuario } = require('./Controllers/UsuariosController');
+const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario } = require('./Controllers/UsuariosController');
 const { login } = require('./Controllers/AuthController');
 
 //Variables: 
@@ -53,6 +53,8 @@ app.get('/getUsuarios', getUsuarios);
 app.post('/newUsuario', insertUsuario);
 
 app.post('/updateUsuario', updateUsuario);
+
+app.post('/deleteUsuario', deleteUsuario);
 
 //    LOGIN
 

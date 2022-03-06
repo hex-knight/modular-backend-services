@@ -24,7 +24,8 @@ login = async (req, res) => {
                     jwt.sign({user}, 'apiKey', {expiresIn: '4h'}, (error, token) => {
                         res.json({
                             statusCode: 200,
-                            token
+                            token,
+                            tipoUsuario: user.tipo_de_usuario
                         });
                     })
                 }else{

@@ -70,8 +70,15 @@ updateUsuario = async (req, res) => {
   try {
     const search = await pool.query('SELECT * FROM USUARIOS WHERE correo IN ($1)', [body.correo]);
   if(search.rows.length > 0 ){
+    if(body.tipoUsuario === 'eliminado'){
+      res.send({
+        statusCode: 500,
+        body: "Ocurrió un error al actualizar el registro."
+      })
+      return;
+    }
     const update = await pool.query(`UPDATE USUARIOS SET tipo_de_usuario = $1 WHERE correo = $2`,
-    [body.tipoDeUsuario, body.correo]);
+    [body.tipoUsuario, body.correo]);
     res.send({
       statusCode: 200,
       body: `Usuario ${body.correo} actualizado correctamente.`
@@ -91,28 +98,28 @@ updateUsuario = async (req, res) => {
   }
 }
 
-deleteSolicitud = async (req, res) => {
-  let idSolicitud = req.params.idSolicitud;
+deleteUsuario = async (req, res) => {
+  let body = req.body;
   try {
-    const search = await pool.query('SELECT * FROM SOLICITUDES WHERE id_solicitud IN ($1)', [idSolicitud]);
+    const search = await pool.query('SELECT * FROM USUARIOS WHERE correo IN ($1)', [body.correo]);
   if(search.rows.length > 0 ){
-    const update = await pool.query(`UPDATE SOLICITUDES SET eliminado = '1' WHERE id_solicitud = $1`,
-    [idSolicitud]);
+    const update = await pool.query(`UPDATE USUARIOS SET tipo_de_usuario = 'eliminado' WHERE correo = $2`,
+    [body.tipoDeUsuario, body.correo]);
     res.send({
       statusCode: 200,
-      body: `Solicitud ${idSolicitud} eliminada correctamente.`
+      body: `Usuario ${body.correo} eliminado correctamente.`
     });
   }else{
     res.send({
       statusCode: 200,
-      body: "Solicitud no encontrada."
+      body: "Usuario no encontrado."
     });
   } 
   } catch (error) {
     console.error(error);
     res.send({
       statusCode: 500,
-      body: "Ocurrió un error eliminando el registro."
+      body: "Ocurrió un error al eliminar el registro."
     });
   }
 }
@@ -121,5 +128,5 @@ module.exports = {
     getUsuarios,
     insertUsuario,
     updateUsuario,
-    // deleteUsuarios
+    deleteUsuario
 }

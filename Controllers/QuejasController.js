@@ -40,7 +40,8 @@ insertQueja = async (req, res) => {
     insert into quejas (id_queja, descripcion, nombre_completo, licenciatura , 
     numero_cedula_espec, numero_cedula_lic, fecha, eliminado) values (
     $1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, '0')`,
-    [body.id_queja, body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEsp, body.numeroCedulaLic])
+    [body.id_queja, body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEsp,
+    body.numeroCedulaLic])
     res.send({
       statusCode: 200,
       body: "Saved succesfully"
