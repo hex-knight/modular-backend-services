@@ -27,7 +27,7 @@ function paginate(arr, size) {
 
 getQuejas = async (req, res) => {
   let numPag = req.params.numPag - 1;
-  let recordsPerPage = 2;
+  let recordsPerPage = 10;
   try {
     const query = await pool.query('SELECT * FROM QUEJAS order by fecha desc');
     if (query.rows.length == 0) {

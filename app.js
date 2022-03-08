@@ -60,7 +60,7 @@ app.post('/deleteUsuario', deleteUsuario);
 
 app.post('/login', login)
 
-//    CATALOG
+//    CATALOGS
 
 app.get('/getTiposDeUsuarios', getTiposDeUsuarios)
 
