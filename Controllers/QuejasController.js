@@ -15,18 +15,45 @@ const pool = new Pool({
 //   port: 5432,
 // })
 
+function paginate(arr, size) {
+  return arr.reduce((acc, val, i) => {
+    let idx = Math.floor(i / size)
+    let page = acc[idx] || (acc[idx] = [])
+    page.push(val)
+
+    return acc
+  }, [])
+}
+
 getQuejas = async (req, res) => {
+  let numPag = req.params.numPag - 1;
+  let recordsPerPage = 2;
   try {
-    const response = await pool.query('SELECT * FROM QUEJAS');
-    res.send({
-      statusCode: 200,
-      body: response.rows
-    })
+    const query = await pool.query('SELECT * FROM QUEJAS order by fecha desc');
+    if (query.rows.length == 0) {
+      res.send({
+        statusCode: 500,
+        body: "No existen registros."
+      })
+    } else {
+      let array = paginate(query.rows, recordsPerPage);
+      if (numPag >= array.length) {
+        res.send({
+          statusCode: 500,
+          body: "Número de página inválido."
+        })
+      } else {
+        res.send({
+          statusCode: 200,
+          body: array[numPag]
+        })
+      }
+    }
   } catch (error) {
     console.error(error)
     res.send({
       statusCode: 500,
-      body: "There was an error saving the record."
+      body: "Ocurrió un error al obtener los registros."
     })
   }
 }
@@ -40,12 +67,12 @@ insertQueja = async (req, res) => {
     insert into quejas (id_queja, descripcion, nombre_completo, licenciatura , 
     numero_cedula_espec, numero_cedula_lic, fecha, eliminado) values (
     $1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, '0')`,
-    [body.id_queja, body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEsp,
-    body.numeroCedulaLic])
+      [body.id_queja, body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEsp,
+      body.numeroCedulaLic])
     res.send({
       statusCode: 200,
       body: "Saved succesfully"
-    });  
+    });
   } catch (error) {
     console.error(error);
     res.send({
@@ -59,20 +86,20 @@ updateQueja = async (req, res) => {
   let body = req.body;
   try {
     const search = await pool.query('SELECT * FROM QUEJAS WHERE id_queja IN ($1)', [body.idQueja]);
-  if(search.rows.length > 0 ){
-    const update = await pool.query(`UPDATE QUEJAS SET descripcion = $1, nombre_completo = $2, licenciatura = $3, 
+    if (search.rows.length > 0) {
+      const update = await pool.query(`UPDATE QUEJAS SET descripcion = $1, nombre_completo = $2, licenciatura = $3, 
     numero_cedula_espec = $4, numero_cedula_lic = $5 WHERE id_queja = $6`,
-    [body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEspec, body.numeroCedulaLic, body.idQueja]);
-    res.send({
-      statusCode: 200,
-      body: `Queja ${body.idQueja} actualizada correctamente.`
-    });
-  }else{
-    res.send({
-      statusCode: 200,
-      body: "Queja no encontrada."
-    });
-  } 
+        [body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEspec, body.numeroCedulaLic, body.idQueja]);
+      res.send({
+        statusCode: 200,
+        body: `Queja ${body.idQueja} actualizada correctamente.`
+      });
+    } else {
+      res.send({
+        statusCode: 200,
+        body: "Queja no encontrada."
+      });
+    }
   } catch (error) {
     console.error(error);
     res.send({
@@ -86,19 +113,19 @@ deleteQueja = async (req, res) => {
   let idQueja = req.params.idQueja;
   try {
     const search = await pool.query('SELECT * FROM QUEJAS WHERE id_queja IN ($1)', [idQueja]);
-  if(search.rows.length > 0 ){
-    const update = await pool.query(`UPDATE QUEJAS SET eliminado = '1' WHERE id_queja = $1`,
-    [idQueja]);
-    res.send({
-      statusCode: 200,
-      body: `Queja ${idQueja} eliminada correctamente.`
-    });
-  }else{
-    res.send({
-      statusCode: 200,
-      body: "Queja no encontrada."
-    });
-  } 
+    if (search.rows.length > 0) {
+      const update = await pool.query(`UPDATE QUEJAS SET eliminado = '1' WHERE id_queja = $1`,
+        [idQueja]);
+      res.send({
+        statusCode: 200,
+        body: `Queja ${idQueja} eliminada correctamente.`
+      });
+    } else {
+      res.send({
+        statusCode: 200,
+        body: "Queja no encontrada."
+      });
+    }
   } catch (error) {
     console.error(error);
     res.send({
@@ -109,8 +136,8 @@ deleteQueja = async (req, res) => {
 }
 
 module.exports = {
-    getQuejas,
-    insertQueja,
-    updateQueja,
-    deleteQueja
+  getQuejas,
+  insertQueja,
+  updateQueja,
+  deleteQueja
 }

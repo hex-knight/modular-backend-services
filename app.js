@@ -6,7 +6,7 @@ const {
   getQuejas, insertQueja, updateQueja, deleteQueja
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
-const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario } = require('./Controllers/UsuariosController');
+const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsuarios } = require('./Controllers/UsuariosController');
 const { login } = require('./Controllers/AuthController');
 
 //Variables: 
@@ -28,7 +28,7 @@ app.get('/health', function (req, res) {
 })
 
 //      QUEJAS
-app.get('/getQuejas', getQuejas );
+app.get('/getQuejas/p:numPag', getQuejas );
 
 app.post('/newQueja', insertQueja);
 
@@ -38,7 +38,7 @@ app.get('/deleteQueja/:idQueja', deleteQueja);
 
 //    SOLICITUDES
 
-app.get('/getSolicitudes', getSolicitudes);
+app.get('/getSolicitudes/p:numPag', getSolicitudes);
 
 app.post('/newSolicitud', insertSolicitud);
 
@@ -48,9 +48,9 @@ app.get('/deleteSolicitud/:idSolicitud', deleteSolicitud);
 
 //    USUARIOS
 
-app.get('/getUsuarios', getUsuarios);
+app.get('/getUsuarios/p:numPag', getUsuarios);
 
-app.post('/newUsuario', insertUsuario);
+app.post('/nuevoUsuario', insertUsuario);
 
 app.post('/updateUsuario', updateUsuario);
 
@@ -59,6 +59,10 @@ app.post('/deleteUsuario', deleteUsuario);
 //    LOGIN
 
 app.post('/login', login)
+
+//    CATALOG
+
+app.get('/getTiposDeUsuarios', getTiposDeUsuarios)
 
 //Run Backend Services
 app.listen(port)
