@@ -1,9 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { getSolicitudes, insertSolicitud, deleteSolicitud,
+const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud,
 } = require('./Controllers/SolicitudesController');
 const {
-  getQuejas, insertQueja, updateQueja, deleteQueja
+  getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
 const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsuarios } = require('./Controllers/UsuariosController');
@@ -36,6 +36,8 @@ app.post('/updateQueja', updateQueja);
 
 app.get('/deleteQueja/:idQueja', deleteQueja);
 
+app.get('/buscarQueja/:noCedula', encontrarQueja);
+
 //    SOLICITUDES
 
 app.get('/getSolicitudes/p:numPag', getSolicitudes);
@@ -45,6 +47,8 @@ app.post('/newSolicitud', insertSolicitud);
 app.post('/updateSolicitud', updateSolicitud);
 
 app.get('/deleteSolicitud/:idSolicitud', deleteSolicitud);
+
+app.get('/buscarSolicitud/:noCedula', encontrarSolicitud);
 
 //    USUARIOS
 

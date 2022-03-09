@@ -58,6 +58,30 @@ getSolicitudes = async (req, res) => {
   }
 }
 
+encontrarSolicitud = async (req, res) =>{
+  let cedula = req.params.noCedula
+  try {
+    let result = await pool.query('select * from solicitudes where num_cedula_especialidad = $1 or num_cedula_licenciatura = $1',[cedula.toString()]);
+    if(result.rows.length > 0){
+      res.send({
+        statusCode: 200,
+        body: result.rows[0]
+      });
+    }else{
+      res.send({
+        statusCode: 500,
+        body: "No se encontró la solicitud con la cédula especificada."
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al buscar la solicitud."
+    });
+  }
+}
+
 insertSolicitud = async (req, res) => {
   let body = req.body;
   try {
@@ -150,5 +174,6 @@ module.exports = {
   getSolicitudes,
   insertSolicitud,
   updateSolicitud,
-  deleteSolicitud
+  deleteSolicitud,
+  encontrarSolicitud
 }

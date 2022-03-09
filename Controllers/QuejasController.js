@@ -58,6 +58,30 @@ getQuejas = async (req, res) => {
   }
 }
 
+encontrarQueja = async (req, res) =>{
+  let cedula = req.params.noCedula
+  try {
+    let result = await pool.query('select * from quejas where numero_cedula_espec = $1 or numero_cedula_lic = $1',[cedula.toString()]);
+    if(result.rows.length > 0){
+      res.send({
+        statusCode: 200,
+        body: result.rows[0]
+      });
+    }else{
+      res.send({
+        statusCode: 500,
+        body: "No se encontró la queja con la cédula especificada."
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al buscar la queja."
+    });
+  }
+}
+
 insertQueja = async (req, res) => {
   let body = req.body;
   try {
@@ -139,5 +163,6 @@ module.exports = {
   getQuejas,
   insertQueja,
   updateQueja,
-  deleteQueja
+  deleteQueja,
+  encontrarQueja
 }
