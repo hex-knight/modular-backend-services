@@ -36,6 +36,8 @@ getQuejas = async (req, res) => {
         body: "No existen registros."
       })
     } else {
+      let noRecords  = query.rows.length;
+      let noPages = Math.ceil(query.rows.length/recordsPerPage)
       let array = paginate(query.rows, recordsPerPage);
       if (numPag >= array.length) {
         res.send({
@@ -45,7 +47,12 @@ getQuejas = async (req, res) => {
       } else {
         res.send({
           statusCode: 200,
-          body: array[numPag]
+          body: {
+            array: array[numPag],
+            noRecords,
+            noPages,
+            page: numPag + 1
+          }
         })
       }
     }
@@ -95,13 +102,13 @@ insertQueja = async (req, res) => {
       body.numeroCedulaLic])
     res.send({
       statusCode: 200,
-      body: "Saved succesfully"
+      body: "Guardado Correctamente"
     });
   } catch (error) {
     console.error(error);
     res.send({
       statusCode: 500,
-      body: "There was an error saving the record."
+      body: "Ocurrió un error al guardar el registro."
     });
   }
 }

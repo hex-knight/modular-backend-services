@@ -55,6 +55,8 @@ getUsuarios = async (req, res) => {
       })
     } else {
       let array = paginate(query.rows, recordsPerPage);
+      let noRecords  = query.rows.length;
+      let noPages = Math.ceil(query.rows.length/recordsPerPage)
       if (numPag >= array.length) {
         res.send({
           statusCode: 500,
@@ -63,7 +65,12 @@ getUsuarios = async (req, res) => {
       } else {
         res.send({
           statusCode: 200,
-          body: array[numPag]
+          body: {
+            array: array[numPag],
+            noRecords,
+            noPages,
+            page: numPag + 1
+          }
         })
       }
     }
