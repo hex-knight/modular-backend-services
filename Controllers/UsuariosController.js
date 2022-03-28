@@ -95,7 +95,7 @@ insertUsuario = async (req, res) => {
       });
     } else {
       bcrypt.hash(
-        body.password, 12).then(async (hash) => {
+        body.password, 9).then(async (hash) => {
 
           await pool.query(`insert into USUARIOS (correo, password, tipo_de_usuario, nombre)
                 values ($1, $2, $3, $4)`,
