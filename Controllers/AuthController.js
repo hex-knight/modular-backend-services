@@ -31,16 +31,23 @@ login = async (req, res) => {
                 }else{
                     res.json({
                         statusCode: 403,
-                        token: null
+                        token: null,
+                        tipoUsuario: "Contraseña incorrecta."
                     })
                 }
+            })
+        }else{
+            res.json({
+                statusCode: 403,
+                token: null,
+                tipoUsuario: "Correo electrónico inválido."
             })
         }
       } catch (error) {
         console.error(error)
         res.send({
           statusCode: 500,
-          body: "There was an error retrieving the records."
+          body: "Ocurrió un error al iniciar sesión."
         })
       }
 }
