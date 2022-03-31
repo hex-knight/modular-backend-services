@@ -99,13 +99,16 @@ insertUsuario = async (req, res) => {
 
           await pool.query(`insert into USUARIOS (correo, password, tipo_de_usuario, nombre)
                 values ($1, $2, $3, $4)`,
-            [body.correo, hash, body.tipoUsuario, body.nombre]);
+            [body.correo, hash, body.tipoUsuario, body.nombre]).
+            then(
+              res.send({
+                statusCode: 200,
+                body: "Usuario guardado"
+              })
+            );
         });
     }
-    res.send({
-      statusCode: 200,
-      body: "Usuario guardado"
-    });
+   
   } catch (error) {
     console.error(error);
     res.send({
