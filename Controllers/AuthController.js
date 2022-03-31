@@ -20,7 +20,7 @@ login = async (req, res) => {
             user = user.rows[0];
             bcrypt.compare(body.password, user.password, function(error, result){
                 if(result){
-                    console.log(user)
+                    // console.log(user)
                     jwt.sign({user}, 'apiKey', {expiresIn: '4h'}, (error, token) => {
                         res.json({
                             statusCode: 200,
