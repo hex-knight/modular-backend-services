@@ -85,6 +85,17 @@ getUsuarios = async (req, res) => {
 
 insertUsuario = async (req, res) => {
   let body = req.body;
+  if(body?.correo === undefined || body?.correo === null || body?.correo === "" ||
+  body?.password === undefined || body?.password === null || body?.password === "" ||
+  body?.tipoUsuario === undefined || body?.tipoUsuario === null || body?.tipoUsuario === "" ||
+  body?.nombre === undefined || body?.nombre === null || body?.nombre === "" 
+  ){
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al guardar el usuario. Favor de revisar los campos."
+    });
+    return;
+  }
   try {
     let correo = await pool.query(`select correo from usuarios where correo = $1`, [body.correo]);
     // revisar si ya existe el correo
@@ -96,19 +107,21 @@ insertUsuario = async (req, res) => {
     } else {
       bcrypt.hash(
         body.password, 9).then(async (hash) => {
-
           await pool.query(`insert into USUARIOS (correo, password, tipo_de_usuario, nombre)
                 values ($1, $2, $3, $4)`,
-            [body.correo, hash, body.tipoUsuario, body.nombre]).
-            then(
+            [body.correo, hash, body.tipoUsuario, body.nombre]).finally(
               res.send({
                 statusCode: 200,
                 body: "Usuario guardado"
+              })).catch((error) =>{
+                console.log(error)
+                res.send({
+                  statusCode: 500,
+                  body: "Ocurrió un error al guardar el usuario."
+                });
               })
-            );
         });
     }
-   
   } catch (error) {
     console.error(error);
     res.send({
