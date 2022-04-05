@@ -89,6 +89,40 @@ encontrarSolicitud = async (req, res) =>{
   }
 }
 
+buscarSolicitud = async (req, res) =>{
+  try {
+    let body = req.body;
+    if(body?.query === undefined || body.query === '' ){
+      res.send({
+        statusCode: 500,
+        body: "Error. Favor de revisar su búsqueda."
+      });
+    }
+    let result = await pool.query(`select * from solicitudes s2 where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
+    or documento_cedula like $1 or domicilio like $1
+    or email like $1 or especialidad like $1 or institucion_educativa like $1
+    or nombre_completo like $1 or telefono like $1 or num_cedula_especialidad like $1
+    or num_cedula_licenciatura like $1`,['%'+body.query+'%']);
+    if(result.rows.length > 0){
+      res.send({
+        statusCode: 200,
+        body: result.rows
+      });
+    }else{
+      res.send({
+        statusCode: 500,
+        body: "No se encontraron resultados."
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al buscar."
+    });
+  }
+}
+
 insertSolicitud = async (req, res) => {
   let body = req.body;
   try {
@@ -182,5 +216,6 @@ module.exports = {
   insertSolicitud,
   updateSolicitud,
   deleteSolicitud,
-  encontrarSolicitud
+  encontrarSolicitud,
+  buscarSolicitud
 }

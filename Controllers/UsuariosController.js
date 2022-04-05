@@ -190,10 +190,42 @@ deleteUsuario = async (req, res) => {
   }
 }
 
+buscarUsuario = async (req, res) =>{
+  try {
+    let body = req.body;
+    if(body?.query === undefined || body.query === '' ){
+      res.send({
+        statusCode: 500,
+        body: "Error. Favor de revisar su búsqueda."
+      });
+    }
+    let result = await pool.query(`select nombre, correo, tipo_de_usuario from usuarios u2 where correo like $1 
+    or nombre like $1`,['%'+body.query+'%']);
+    if(result.rows.length > 0){
+      res.send({
+        statusCode: 200,
+        body: result.rows
+      });
+    }else{
+      res.send({
+        statusCode: 500,
+        body: "No se encontraron resultados."
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al buscar."
+    });
+  }
+}
+
 module.exports = {
   getUsuarios,
   insertUsuario,
   updateUsuario,
   deleteUsuario,
-  getTiposDeUsuarios
+  getTiposDeUsuarios,
+  buscarUsuario
 }

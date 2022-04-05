@@ -1,12 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud,
+const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud,
 } = require('./Controllers/SolicitudesController');
 const {
-  getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja
+  getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
-const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsuarios } = require('./Controllers/UsuariosController');
+const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsuarios, buscarUsuario } = require('./Controllers/UsuariosController');
 const { login, validateUser } = require('./Controllers/AuthController');
 const jwt = require('jsonwebtoken')
  
@@ -58,7 +58,9 @@ app.post('/updateQueja', verifyToken, verifyQuejas ,updateQueja);
 
 app.get('/deleteQueja/:idQueja', verifyToken, verifyQuejas ,deleteQueja);
 
-app.get('/buscarQueja/:noCedula', verifyToken, verifyQuejas , encontrarQueja);
+app.get('/mostrarQueja/:noCedula', verifyToken, verifyQuejas , encontrarQueja);
+
+app.post('/buscarQueja', verifyToken, verifyQuejas, buscarQueja);
 
 function verifyQuejas(req, res, next){
   jwt.verify(req.token, 'apiKey', async (error, authData) =>{
@@ -93,7 +95,9 @@ app.post('/updateSolicitud', verifyToken, verifySolicitudes, updateSolicitud);
 
 app.get('/deleteSolicitud/:idSolicitud', verifyToken, verifySolicitudes, deleteSolicitud);
 
-app.get('/buscarSolicitud/:noCedula', verifyToken, verifySolicitudes, encontrarSolicitud);
+app.get('/mostrarSolicitud/:noCedula', verifyToken, verifySolicitudes, encontrarSolicitud);
+
+app.post('/buscarSolicitud', verifyToken, verifySolicitudes, buscarSolicitud);
 
 function verifySolicitudes(req, res, next){
   jwt.verify(req.token, 'apiKey', async (error, authData) =>{
@@ -127,6 +131,8 @@ app.post('/nuevoUsuario', verifyToken, verifyUsuarios, insertUsuario);
 app.post('/updateUsuario', verifyToken, verifyUsuarios, updateUsuario);
 
 app.post('/deleteUsuario', verifyToken, verifyUsuarios, deleteUsuario);
+
+app.post('/buscarUsuario', verifyToken, verifyUsuarios, buscarUsuario);
 
 function verifyUsuarios(req, res, next){
   jwt.verify(req.token, 'apiKey', async (error, authData) =>{
