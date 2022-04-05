@@ -11,6 +11,18 @@ const pool = new Pool({
   port: 5432,
 })
 
+validateUser = async (correo) => {
+    try{
+    let user = await pool.query('SELECT * FROM USUARIOS WHERE correo = $1', [correo]);
+        if(user.rows.length > 0){
+            return true
+        }else{
+            return false
+        }
+    }catch(error){
+        return false;
+    }
+}
 
 login = async (req, res) => {
     try {
@@ -53,5 +65,6 @@ login = async (req, res) => {
 }
 
 module.exports = {
-    login
+    login,
+    validateUser
 }
