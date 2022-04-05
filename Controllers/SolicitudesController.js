@@ -123,6 +123,41 @@ buscarSolicitud = async (req, res) =>{
   }
 }
 
+reportesSolicitudes = async (req, res) => {
+  try {
+    let body = req.body;
+    let result = await pool.query(`select * from solicitudes where 
+    fecha > $1 and
+    fecha < $2`,[body.inicio, body.fin]);
+    if(result.rows.length > 0){
+      const ini = parseInt(body.inicio.substring(5,7));
+      const fin = parseInt(body.fin.substring(5,7));
+      let response = {}
+      result.rows.map((record) => {
+        let month = record.fecha.getMonth()+1
+        response[`${(month<10?'0':'')+month.toString()}`]===undefined?
+        response[`${(month<10?'0':'')+month.toString()}`] = [record] : 
+        response[`${(month<10?'0':'')+month.toString()}`].push(record)
+      })
+      res.send({
+        statusCode: 200,
+        body: response
+      })
+    }else{
+      res.send({
+        statusCode: 500,
+        body: "No se encontraron resultados."
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al buscar."
+    });
+  }
+}
+
 insertSolicitud = async (req, res) => {
   let body = req.body;
   try {
@@ -217,5 +252,6 @@ module.exports = {
   updateSolicitud,
   deleteSolicitud,
   encontrarSolicitud,
-  buscarSolicitud
+  buscarSolicitud,
+  reportesSolicitudes
 }

@@ -1,9 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud,
+const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes,
 } = require('./Controllers/SolicitudesController');
 const {
-  getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja
+  getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja, reportesQuejas
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
 const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsuarios, buscarUsuario } = require('./Controllers/UsuariosController');
@@ -62,6 +62,8 @@ app.get('/mostrarQueja/:noCedula', verifyToken, verifyQuejas , encontrarQueja);
 
 app.post('/buscarQueja', verifyToken, verifyQuejas, buscarQueja);
 
+app.post('/reporteQuejas', verifyToken, verifyQuejas, reportesQuejas);
+
 function verifyQuejas(req, res, next){
   jwt.verify(req.token, 'apiKey', async (error, authData) =>{
     if(error){
@@ -98,6 +100,8 @@ app.get('/deleteSolicitud/:idSolicitud', verifyToken, verifySolicitudes, deleteS
 app.get('/mostrarSolicitud/:noCedula', verifyToken, verifySolicitudes, encontrarSolicitud);
 
 app.post('/buscarSolicitud', verifyToken, verifySolicitudes, buscarSolicitud);
+
+app.post('/reporteSolicitudes', verifyToken, verifySolicitudes, reportesSolicitudes);
 
 function verifySolicitudes(req, res, next){
   jwt.verify(req.token, 'apiKey', async (error, authData) =>{
