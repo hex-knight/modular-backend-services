@@ -169,7 +169,9 @@ function refreshToken(req, res){
       const valid = await validateUser(authData.user.correo)
       const user = authData.user
       if(valid){
-        jwt.sign({user}, 'apiKey', {expiresIn: '4h'}, (error, token) => {
+        jwt.sign({user}, 'apiKey',
+        //  {expiresIn: '8h'}, TO DO: activar después del 7 de abril
+         (error, token) => {
           res.json({
               statusCode: 200,
               token
