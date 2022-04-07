@@ -132,9 +132,9 @@ app.get('/getUsuarios/p:numPag', verifyToken, verifyUsuarios, getUsuarios);
 
 app.post('/nuevoUsuario', verifyToken, verifyUsuarios, insertUsuario);
 
-app.post('/updateUsuario', verifyToken, verifyUsuarios, updateUsuario);
+app.post('/updateUsuario', verifyToken, verifySuperUser, updateUsuario);
 
-app.post('/deleteUsuario', verifyToken, verifyUsuarios, deleteUsuario);
+app.post('/deleteUsuario', verifyToken, verifySuperUser, deleteUsuario);
 
 app.post('/buscarUsuario', verifyToken, verifyUsuarios, buscarUsuario);
 
@@ -222,6 +222,39 @@ function verifyAdmin(req, res, next){
       }
     }
   })
+}
+
+function verifySuperUser(req, res, next){
+  jwt.verify(req.token, 'apiKey', async (error, authData) =>{
+    if(error){
+      console.log(error);
+      res.send({
+        statusCode: 500,
+        body: "Error. Token inválido."
+      });
+    }else{
+      const valid = await validateUser(authData.user.correo)
+      const tipoUsuario = authData.user.tipo_de_usuario
+      if(valid && (tipoUsuario === 'SU')){
+        next();
+      }else{
+        res.send({
+          statusCode: 403,
+          body: "Error. No está autorizado para realizar esta acción."
+        });
+      }
+    }
+  })
+}
+
+app.post('/testFiles', testFiles);
+
+function testFiles(req,res){
+  let body = req?.multipart?.body;
+  console.log(body);
+  res.send(
+    "ok"
+  );
 }
 
 //Run Backend Services
