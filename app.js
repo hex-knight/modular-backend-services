@@ -128,7 +128,7 @@ function verifySolicitudes(req, res, next){
 
 //    USUARIOS
 
-app.get('/getUsuarios/p:numPag', verifyToken, verifyUsuarios, getUsuarios);
+app.get('/getUsuarios/p:numPag',  getUsuarios);
 
 app.post('/nuevoUsuario', verifyToken, verifyUsuarios, insertUsuario);
 
@@ -247,26 +247,26 @@ function verifySuperUser(req, res, next){
   })
 }
 
-const multer = require('multer');
-const os = require('os');
-const upload = multer({dest: os.tmpdir() });
+// const multer = require('multer');
+// const os = require('os');
+// const upload = multer({dest: os.tmpdir() });
 
-app.post('/testFiles', upload.single('file', function(req, res) {
-  const title = req.body.title;
-  const file = req.file;
+// app.post('/testFiles', upload.single('file', function(req, res) {
+//   const title = req.body.title;
+//   const file = req.file;
 
-  console.log(title);
-  console.log(file);
-}));
+//   console.log(title);
+//   console.log(file);
+// }));
 
 
-function testFiles(req,res){
-  let body = req?.multipart?.body;
-  console.log(body);
-  res.send(
-    "ok"
-  );
-}
+// function testFiles(req,res){
+//   let body = req?.multipart?.body;
+//   console.log(body);
+//   res.send(
+//     "ok"
+//   );
+// }
 
 //Run Backend Services
 app.listen(port)

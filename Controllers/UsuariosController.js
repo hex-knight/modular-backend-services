@@ -47,7 +47,7 @@ getUsuarios = async (req, res) => {
   let numPag = req.params.numPag - 1;
   let recordsPerPage = 10;
   try {
-    const query = await pool.query('SELECT CORREO, NOMBRE, TIPO_DE_USUARIO FROM USUARIOS order by correo desc');
+    const query = await pool.query(`SELECT CORREO, NOMBRE, TIPO_DE_USUARIO FROM USUARIOS where tipo_de_usuario != 'DEL' order by correo desc`);
     if (query.rows.length == 0) {
       res.send({
         statusCode: 500,
