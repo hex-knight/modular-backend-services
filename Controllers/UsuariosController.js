@@ -136,7 +136,7 @@ updateUsuario = async (req, res) => {
   try {
     const search = await pool.query('SELECT * FROM USUARIOS WHERE correo IN ($1)', [body.correo]);
     if (search.rows.length > 0) {
-      if (body.tipoUsuario === 'eliminado') {
+      if (body.tipoUsuario === 'DEL') {
         res.send({
           statusCode: 500,
           body: "Ocurrió un error al actualizar el registro."
