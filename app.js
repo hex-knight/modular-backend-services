@@ -128,15 +128,34 @@ function verifySolicitudes(req, res, next){
 
 //    USUARIOS
 
-app.get('/getUsuarios/p:numPag',  getUsuarios);
+app.get('/getUsuarios/p:numPag', verifyToken, verifySuperUser, getUsuarios);
 
-app.post('/nuevoUsuario', verifyToken, verifyUsuarios, insertUsuario);
+app.post('/nuevoUsuario', insertUsuario);
 
 app.post('/updateUsuario', verifyToken, verifySuperUser, updateUsuario);
 
 app.post('/deleteUsuario', verifyToken, verifySuperUser, deleteUsuario);
 
 app.post('/buscarUsuario', verifyToken, verifyUsuarios, buscarUsuario);
+
+// function verifyNewToken(req, res, next){
+  
+//       let body = req.body;
+
+//       const valid = await validateUser(authData.user.correo)
+//       const tipoUsuario = authData.user.tipo_de_usuario
+//       if(valid &&
+//         ((tipoUsuario==='SU' || tipoUsuario === 'PS') && (body.tipoUsuario === 'SU' || body.tipoUsuario === 'AD')) ||
+//         (body.tipoUsuario === 'PS')){
+//         next();
+//       }else{
+//         res.send({
+//           statusCode: 403,
+//           body: "Error. No está autorizado para realizar esta acción."
+//         });
+//       }
+//   }
+// }
 
 function verifyUsuarios(req, res, next){
   jwt.verify(req.token, 'apiKey', async (error, authData) =>{
