@@ -30,26 +30,34 @@ login = async (req, res) => {
         let user = await pool.query('SELECT * FROM USUARIOS WHERE correo = $1', [body.correo]);
         if(user.rows.length > 0){
             user = user.rows[0];
-            bcrypt.compare(body.password, user.password, function(error, result){
-                if(result){
-                    // console.log(user)
-                    jwt.sign({user}, 'apiKey', 
-                    // {expiresIn: '8h'}, 
-                    (error, token) => {
+            if(user.tipo_de_usuario === 'DEL'){
+                res.json({
+                    statusCode: 403,
+                    token: null,
+                    tipoUsuario: "Usuario inválido."
+                })
+            }else{
+                bcrypt.compare(body.password, user.password, function(error, result){
+                    if(result){
+                        // console.log(user)
+                        jwt.sign({user}, 'apiKey', 
+                        // {expiresIn: '8h'}, 
+                        (error, token) => {
+                            res.json({
+                                statusCode: 200,
+                                token,
+                                tipoUsuario: user.tipo_de_usuario
+                            });
+                        })
+                    }else{
                         res.json({
-                            statusCode: 200,
-                            token,
-                            tipoUsuario: user.tipo_de_usuario
-                        });
-                    })
-                }else{
-                    res.json({
-                        statusCode: 403,
-                        token: null,
-                        tipoUsuario: "Contraseña incorrecta."
-                    })
-                }
-            })
+                            statusCode: 403,
+                            token: null,
+                            tipoUsuario: "Contraseña incorrecta."
+                        })
+                    }
+                })
+            }
         }else{
             res.json({
                 statusCode: 403,
