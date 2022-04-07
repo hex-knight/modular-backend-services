@@ -247,7 +247,18 @@ function verifySuperUser(req, res, next){
   })
 }
 
-app.post('/testFiles', testFiles);
+const multer = require('multer');
+const os = require('os');
+const upload = multer({dest: os.tmpdir() });
+
+app.post('/testFiles', upload.single('file', function(req, res) {
+  const title = req.body.title;
+  const file = req.file;
+
+  console.log(title);
+  console.log(file);
+}));
+
 
 function testFiles(req,res){
   let body = req?.multipart?.body;

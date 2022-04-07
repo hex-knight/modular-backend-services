@@ -169,8 +169,8 @@ deleteUsuario = async (req, res) => {
   try {
     const search = await pool.query('SELECT * FROM USUARIOS WHERE correo IN ($1)', [body.correo]);
     if (search.rows.length > 0) {
-      const update = await pool.query(`UPDATE USUARIOS SET tipo_de_usuario = 'eliminado' WHERE correo = $2`,
-        [body.tipoDeUsuario, body.correo]);
+      const update = await pool.query(`UPDATE USUARIOS SET tipo_de_usuario = 'DEL' WHERE correo = $1`,
+        [ body.correo]);
       res.send({
         statusCode: 200,
         body: `Usuario ${body.correo} eliminado correctamente.`
