@@ -9,7 +9,7 @@ var cors = require('cors');
 const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsuarios, buscarUsuario } = require('./Controllers/UsuariosController');
 const { login, validateUser } = require('./Controllers/AuthController');
 const jwt = require('jsonwebtoken')
- 
+
 //Variables: 
 var app = express()
 var port = process.env.PORT || 8080
@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 
 //Routes
-app.get('/', (req,res)=>{
+app.get('/', (req, res) => {
   res.send('Up and Running!');
 })
 
@@ -28,19 +28,20 @@ app.get('/health', function (req, res) {
   res.json({ body: 'Backend services up and running!' })
 })
 //Verify Token
-function verifyToken(req, res, next){
-  try{
-  const bearerHeader = req.headers['authorization'];
-  if(typeof bearerHeader !== 'undefined'){
-    const bearerToken = bearerHeader.split(" ")[1];
-    req.token = bearerToken;
-    next();
-  }else{
-    res.send({
-      statusCode: 403,
-      body: "Error. Token inválido."
-    });
-  }}catch(error){
+function verifyToken(req, res, next) {
+  try {
+    const bearerHeader = req.headers['authorization'];
+    if (typeof bearerHeader !== 'undefined') {
+      const bearerToken = bearerHeader.split(" ")[1];
+      req.token = bearerToken;
+      next();
+    } else {
+      res.send({
+        statusCode: 403,
+        body: "Error. Token inválido."
+      });
+    }
+  } catch (error) {
     console.log(error);
     res.send({
       statusCode: 403,
@@ -50,34 +51,34 @@ function verifyToken(req, res, next){
 }
 
 //      QUEJAS
-app.get('/getQuejas/p:numPag', verifyToken, verifyQuejas , getQuejas );
+app.get('/getQuejas/p:numPag', verifyToken, verifyQuejas, getQuejas);
 
-app.post('/newQueja',verifyToken, verifyQuejas , insertQueja);
+app.post('/newQueja', verifyToken, verifyQuejas, insertQueja);
 
-app.post('/updateQueja', verifyToken, verifyQuejas ,updateQueja);
+app.post('/updateQueja', verifyToken, verifyQuejas, updateQueja);
 
-app.get('/deleteQueja/:idQueja', verifyToken, verifyQuejas ,deleteQueja);
+app.get('/deleteQueja/:idQueja', verifyToken, verifyQuejas, deleteQueja);
 
-app.get('/mostrarQueja/:noCedula', verifyToken, verifyQuejas , encontrarQueja);
+app.get('/mostrarQueja/:noCedula', verifyToken, verifyQuejas, encontrarQueja);
 
 app.post('/buscarQueja', verifyToken, verifyQuejas, buscarQueja);
 
 app.post('/reporteQuejas', verifyToken, verifyQuejas, reportesQuejas);
 
-function verifyQuejas(req, res, next){
-  jwt.verify(req.token, 'apiKey', async (error, authData) =>{
-    if(error){
+function verifyQuejas(req, res, next) {
+  jwt.verify(req.token, 'apiKey', async (error, authData) => {
+    if (error) {
       console.log(error);
       res.send({
         statusCode: 500,
         body: "Error. Token inválido."
       });
-    }else{
+    } else {
       const valid = await validateUser(authData.user.correo)
       const tipoUsuario = authData.user.tipo_de_usuario
-      if(valid && (tipoUsuario === 'AD' || tipoUsuario === 'SU')){
+      if (valid && (tipoUsuario === 'AD' || tipoUsuario === 'SU')) {
         next();
-      }else{
+      } else {
         res.send({
           statusCode: 403,
           body: "Error. No está autorizado para realizar esta acción."
@@ -103,20 +104,20 @@ app.post('/buscarSolicitud', verifyToken, verifySolicitudes, buscarSolicitud);
 
 app.post('/reporteSolicitudes', verifyToken, verifySolicitudes, reportesSolicitudes);
 
-function verifySolicitudes(req, res, next){
-  jwt.verify(req.token, 'apiKey', async (error, authData) =>{
-    if(error){
+function verifySolicitudes(req, res, next) {
+  jwt.verify(req.token, 'apiKey', async (error, authData) => {
+    if (error) {
       console.log(error);
       res.send({
         statusCode: 500,
         body: "Error. Token inválido."
       });
-    }else{
+    } else {
       const valid = await validateUser(authData.user.correo)
       const tipoUsuario = authData.user.tipo_de_usuario
-      if(valid && (tipoUsuario === 'AD' || tipoUsuario === 'SU' || tipoUsuario === 'PS')){
+      if (valid && (tipoUsuario === 'AD' || tipoUsuario === 'SU' || tipoUsuario === 'PS')) {
         next();
-      }else{
+      } else {
         res.send({
           statusCode: 403,
           body: "Error. No está autorizado para realizar esta acción."
@@ -130,7 +131,7 @@ function verifySolicitudes(req, res, next){
 
 app.get('/getUsuarios/p:numPag', verifyToken, verifySuperUser, getUsuarios);
 
-app.post('/nuevoUsuario', insertUsuario);
+app.post('/nuevoUsuario', verifyNewUser, insertUsuario);
 
 app.post('/updateUsuario', verifyToken, verifySuperUser, updateUsuario);
 
@@ -138,155 +139,185 @@ app.post('/deleteUsuario', verifyToken, verifySuperUser, deleteUsuario);
 
 app.post('/buscarUsuario', verifyToken, verifyUsuarios, buscarUsuario);
 
-// function verifyNewToken(req, res, next){
+function verifyNewUser(req, res, next) {
+  try{
+    let body = req.body;
+    if (body.tipoUsuario === 'SU' || body.tipoUsuario === 'AD') {
+      const bearerHeader = req.headers['authorization'];
+      if (typeof bearerHeader !== 'undefined') {
+        const bearerToken = bearerHeader.split(" ")[1];
+        req.token = bearerToken;
+        jwt.verify(req.token, 'apiKey', async (error, authData) => {
+          if (error) {
+            console.log(error);
+            res.send({
+              statusCode: 500,
+              body: "Error. Token inválido."
+            });
+          } else {
+            const valid = await validateUser(authData.user.correo)
+            const tipoUsuario = authData.user.tipo_de_usuario
+            if (valid && tipoUsuario === 'SU') {
+              next();
+            } else {
+              res.send({
+                statusCode: 403,
+                body: "Error. No está autorizado para realizar esta acción."
+              });
+            }
+          }
+        })
+      } else {
+        res.send({
+          statusCode: 403,
+          body: "Error. No está autorizado para realizar esta acción."
+        });
+      }
+    }else{
+      if(body.tipoUsuario === 'PS'){
+        next();
+      }
+    }
+  }catch(error){
+    console.log(error);
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al crear el usuario."
+    });
+  }
   
-//       let body = req.body;
-
-//       const valid = await validateUser(authData.user.correo)
-//       const tipoUsuario = authData.user.tipo_de_usuario
-//       if(valid &&
-//         ((tipoUsuario==='SU' || tipoUsuario === 'PS') && (body.tipoUsuario === 'SU' || body.tipoUsuario === 'AD')) ||
-//         (body.tipoUsuario === 'PS')){
-//         next();
-//       }else{
-//         res.send({
-//           statusCode: 403,
-//           body: "Error. No está autorizado para realizar esta acción."
-//         });
-//       }
-//   }
-// }
-
-function verifyUsuarios(req, res, next){
-  jwt.verify(req.token, 'apiKey', async (error, authData) =>{
-    if(error){
-      console.log(error);
-      res.send({
-        statusCode: 500,
-        body: "Error. Token inválido."
-      });
-    }else{
-      const valid = await validateUser(authData.user.correo)
-      const tipoUsuario = authData.user.tipo_de_usuario
-      if(valid && (tipoUsuario === 'SU' || tipoUsuario === 'PS')){
-        next();
-      }else{
-        res.send({
-          statusCode: 403,
-          body: "Error. No está autorizado para realizar esta acción."
-        });
-      }
-    }
-  })
 }
 
-//    LOGIN
-
-app.post('/login',  login)
-
-app.get('/refreshToken',verifyToken, refreshToken)
-
-function refreshToken(req, res){
-  jwt.verify(req.token, 'apiKey', async (error, authData) =>{
-    if(error){
-      console.log(error);
-      res.send({
-        statusCode: 500,
-        body: "Error. Token inválido."
-      });
-    }else{
-      const valid = await validateUser(authData.user.correo)
-      const user = authData.user
-      if(valid){
-        jwt.sign({user}, 'apiKey',
-        //  {expiresIn: '8h'}, TO DO: activar después del 7 de abril
-         (error, token) => {
-          res.json({
-              statusCode: 200,
-              token
+  function verifyUsuarios(req, res, next) {
+    jwt.verify(req.token, 'apiKey', async (error, authData) => {
+      if (error) {
+        console.log(error);
+        res.send({
+          statusCode: 500,
+          body: "Error. Token inválido."
+        });
+      } else {
+        const valid = await validateUser(authData.user.correo)
+        const tipoUsuario = authData.user.tipo_de_usuario
+        if (valid && (tipoUsuario === 'SU' || tipoUsuario === 'PS')) {
+          next();
+        } else {
+          res.send({
+            statusCode: 403,
+            body: "Error. No está autorizado para realizar esta acción."
           });
-      })
-      }else{
-        res.send({
-          statusCode: 403,
-          body: "Error. No está autorizado para realizar esta acción."
-        });
+        }
       }
-    }
-  })
-}
+    })
+  }
 
-//    CATALOGS
+  //    LOGIN
 
-app.get('/getTiposDeUsuarios', verifyToken, verifyAdmin, getTiposDeUsuarios)
+  app.post('/login', login)
 
-function verifyAdmin(req, res, next){
-  jwt.verify(req.token, 'apiKey', async (error, authData) =>{
-    if(error){
-      console.log(error);
-      res.send({
-        statusCode: 500,
-        body: "Error. Token inválido."
-      });
-    }else{
-      const valid = await validateUser(authData.user.correo)
-      const tipoUsuario = authData.user.tipo_de_usuario
-      if(valid && (tipoUsuario === 'PS')){
-        next();
-      }else{
+  app.get('/refreshToken', verifyToken, refreshToken)
+
+  function refreshToken(req, res) {
+    jwt.verify(req.token, 'apiKey', async (error, authData) => {
+      if (error) {
+        console.log(error);
         res.send({
-          statusCode: 403,
-          body: "Error. No está autorizado para realizar esta acción."
+          statusCode: 500,
+          body: "Error. Token inválido."
         });
+      } else {
+        const valid = await validateUser(authData.user.correo)
+        const user = authData.user
+        if (valid) {
+          jwt.sign({ user }, 'apiKey',
+            //  {expiresIn: '8h'}, TO DO: activar después del 7 de abril
+            (error, token) => {
+              res.json({
+                statusCode: 200,
+                token
+              });
+            })
+        } else {
+          res.send({
+            statusCode: 403,
+            body: "Error. No está autorizado para realizar esta acción."
+          });
+        }
       }
-    }
-  })
-}
+    })
+  }
 
-function verifySuperUser(req, res, next){
-  jwt.verify(req.token, 'apiKey', async (error, authData) =>{
-    if(error){
-      console.log(error);
-      res.send({
-        statusCode: 500,
-        body: "Error. Token inválido."
-      });
-    }else{
-      const valid = await validateUser(authData.user.correo)
-      const tipoUsuario = authData.user.tipo_de_usuario
-      if(valid && (tipoUsuario === 'SU')){
-        next();
-      }else{
+  //    CATALOGS
+
+  app.get('/getTiposDeUsuarios', verifyToken, verifyAdmin, getTiposDeUsuarios)
+
+  function verifyAdmin(req, res, next) {
+    jwt.verify(req.token, 'apiKey', async (error, authData) => {
+      if (error) {
+        console.log(error);
         res.send({
-          statusCode: 403,
-          body: "Error. No está autorizado para realizar esta acción."
+          statusCode: 500,
+          body: "Error. Token inválido."
         });
+      } else {
+        const valid = await validateUser(authData.user.correo)
+        const tipoUsuario = authData.user.tipo_de_usuario
+        if (valid && (tipoUsuario === 'PS')) {
+          next();
+        } else {
+          res.send({
+            statusCode: 403,
+            body: "Error. No está autorizado para realizar esta acción."
+          });
+        }
       }
-    }
-  })
-}
+    })
+  }
 
-// const multer = require('multer');
-// const os = require('os');
-// const upload = multer({dest: os.tmpdir() });
+  function verifySuperUser(req, res, next) {
+    jwt.verify(req.token, 'apiKey', async (error, authData) => {
+      if (error) {
+        console.log(error);
+        res.send({
+          statusCode: 500,
+          body: "Error. Token inválido."
+        });
+      } else {
+        const valid = await validateUser(authData.user.correo)
+        const tipoUsuario = authData.user.tipo_de_usuario
+        if (valid && (tipoUsuario === 'SU')) {
+          next();
+        } else {
+          res.send({
+            statusCode: 403,
+            body: "Error. No está autorizado para realizar esta acción."
+          });
+        }
+      }
+    })
+  }
 
-// app.post('/testFiles', upload.single('file', function(req, res) {
-//   const title = req.body.title;
-//   const file = req.file;
+  // const multer = require('multer');
+  // const os = require('os');
+  // const upload = multer({dest: os.tmpdir() });
 
-//   console.log(title);
-//   console.log(file);
-// }));
+  // app.post('/testFiles', upload.single('file', function(req, res) {
+  //   const title = req.body.title;
+  //   const file = req.file;
+
+  //   console.log(title);
+  //   console.log(file);
+  // }));
 
 
-// function testFiles(req,res){
-//   let body = req?.multipart?.body;
-//   console.log(body);
-//   res.send(
-//     "ok"
-//   );
-// }
+  // function testFiles(req,res){
+  //   let body = req?.multipart?.body;
+  //   console.log(body);
+  //   res.send(
+  //     "ok"
+  //   );
+  // }
 
-//Run Backend Services
-app.listen(port)
-console.log('API REST Corriendo en:  ' + port)
+  //Run Backend Services
+  app.listen(port)
+  console.log('API REST Corriendo en:  ' + port)
