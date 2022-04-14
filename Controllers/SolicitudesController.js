@@ -185,14 +185,14 @@ insertSolicitud = async (req, res) => {
     insert into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
     documento_titulo, domicilio, email, especialidad, estatus, id_solicitud,
     institucion_educativa, licenciatura, nombre_completo, telefono, eliminado, 
-    num_cedula_especialidad, num_cedula_licenciatura, fecha
+    num_cedula_especialidad, num_cedula_licenciatura, fecha, status
     ) values (
-    $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, CURRENT_TIMESTAMP)`,
+    $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, CURRENT_TIMESTAMP, $15)`,
       [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud,
       body.documentoTitulo, body.domicilio, body.email,
       body.especialidad, body.idSolicitud, body.institucionEducativa,
       body.licenciatura, body.nombreCompleto, body.telefono,
-      body.numCedulaEspecialidad, body.numCedulaLicenciatura])
+      body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.status])
     res.send({
       statusCode: 200,
       body: "Guardado Correctamente"
