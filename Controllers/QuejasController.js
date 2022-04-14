@@ -113,6 +113,24 @@ insertQueja = async (req, res) => {
   }
 }
 
+popularQuejas = async (body) =>{
+  // let body = req.body;
+  try {
+    let nextId = await pool.query('select id_queja from quejas q order by id_queja desc limit 1');
+    body.id_queja = nextId.rows.length > 0 ? nextId.rows[0].id_queja + 1 : 1;
+    response = await pool.query(`
+    insert into quejas (id_queja, descripcion, nombre_completo, licenciatura , 
+    numero_cedula_espec, numero_cedula_lic, fecha, eliminado) values (
+    $1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, '0')`,
+      [body.id_queja, body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEsp,
+      body.numeroCedulaLic])
+    return 0;
+  } catch (error) {
+    console.error(error);
+    return 1;
+  }
+}
+
 updateQueja = async (req, res) => {
   let body = req.body;
   try {
@@ -240,5 +258,6 @@ module.exports = {
   deleteQueja,
   encontrarQueja,
   buscarQueja,
-  reportesQuejas
+  reportesQuejas,
+  popularQuejas
 }

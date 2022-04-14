@@ -29,7 +29,13 @@ getSolicitudes = async (req, res) => {
   let numPag = req.params.numPag - 1;
   let recordsPerPage = 10;
   try {
-    const query = await pool.query('SELECT * FROM SOLICITUDES order by fecha desc');
+    const query = await pool.query(`SELECT 
+    documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
+    email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', std.status as status':''} 
+    FROM SOLICITUDES sl
+    ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?' left outer join status_domain as std on sl.status = std.codigo_status ':' '}
+    order by fecha desc`);
     if (query.rows.length == 0) {
       res.send({
         statusCode: 500,
@@ -68,7 +74,11 @@ getSolicitudes = async (req, res) => {
 encontrarSolicitud = async (req, res) =>{
   let cedula = req.params.noCedula
   try {
-    let result = await pool.query('select * from solicitudes where num_cedula_especialidad = $1 or num_cedula_licenciatura = $1',[cedula.toString()]);
+    let result = await pool.query(`select 
+    documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
+    email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', status ':''}
+    from solicitudes where num_cedula_especialidad = $1 or num_cedula_licenciatura = $1`,[cedula.toString()]);
     if(result.rows.length > 0){
       res.send({
         statusCode: 200,
@@ -98,7 +108,11 @@ buscarSolicitud = async (req, res) =>{
         body: "Error. Favor de revisar su búsqueda."
       });
     }
-    let result = await pool.query(`select * from solicitudes s2 where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
+    let result = await pool.query(`select 
+    documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
+    email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', status ':''}
+    from solicitudes s2 where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
     or documento_cedula like $1 or domicilio like $1
     or email like $1 or especialidad like $1 or institucion_educativa like $1
     or nombre_completo like $1 or telefono like $1 or num_cedula_especialidad like $1
@@ -188,6 +202,29 @@ insertSolicitud = async (req, res) => {
   }
 }
 
+popularSolicitudes = async (body) => {
+  try {
+    let nextId = await pool.query('select id_solicitud from solicitudes q order by id_solicitud desc limit 1');
+    body.idSolicitud = nextId.rows.length > 0 ? nextId.rows[0].id_solicitud + 1 : 1;
+    response = await pool.query(`
+    insert into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
+    documento_titulo, domicilio, email, especialidad, estatus, id_solicitud,
+    institucion_educativa, licenciatura, nombre_completo, telefono, eliminado, 
+    num_cedula_especialidad, num_cedula_licenciatura, fecha
+    ) values (
+    $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, CURRENT_TIMESTAMP)`,
+      [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud,
+      body.documentoTitulo, body.domicilio, body.email,
+      body.especialidad, body.idSolicitud, body.institucionEducativa,
+      body.licenciatura, body.nombreCompleto, body.telefono,
+      body.numCedulaEspecialidad, body.numCedulaLicenciatura])
+    return 0;
+  } catch (error) {
+    console.error(error);
+    return 1;
+  }
+}
+
 updateSolicitud = async (req, res) => {
   let body = req.body;
   try {
@@ -253,5 +290,6 @@ module.exports = {
   deleteSolicitud,
   encontrarSolicitud,
   buscarSolicitud,
-  reportesSolicitudes
+  reportesSolicitudes,
+  popularSolicitudes
 }

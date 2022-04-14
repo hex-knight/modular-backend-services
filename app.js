@@ -1,14 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes,
+const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes,
 } = require('./Controllers/SolicitudesController');
 const {
-  getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja, reportesQuejas
+  getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja, reportesQuejas, popularQuejas
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
-const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsuarios, buscarUsuario } = require('./Controllers/UsuariosController');
+const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsuarios, buscarUsuario, popularUsuarios } = require('./Controllers/UsuariosController');
 const { login, validateUser } = require('./Controllers/AuthController');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { default: faker } = require('@faker-js/faker');
 
 //Variables: 
 var app = express()
@@ -51,7 +52,28 @@ function verifyToken(req, res, next) {
 }
 
 //      QUEJAS
+// const { faker } = require('@faker-js/faker');
+async function generarQuejas(req, res){
+  let body = {}
+  for(var i = 0; i < 50; i++){
+    body = {
+      descripcion : faker.random.words(3),
+      nombreCompleto : faker.name.findName(),
+      licenciatura : faker.random.word(),
+      numeroCedulaEsp : faker.random.number(max = 9999999),
+      numeroCedulaLic : faker.random.number(max = 9999999)
+    }
+    var result = await popularQuejas(body);
+    if(result === 1){
+      res.send(500)
+    }
+  }
+  res.send(200)
+}
+
 app.get('/getQuejas/p:numPag', verifyToken, verifyQuejas, getQuejas);
+
+// app.get('/popularQuejas', generarQuejas);
 
 app.post('/newQueja', verifyToken, verifyQuejas, insertQueja);
 
@@ -90,7 +112,37 @@ function verifyQuejas(req, res, next) {
 
 //    SOLICITUDES
 
+async function generarSolicitudes(req, res){
+  let body = {}
+  for(var i = 0; i < 50; i++){
+    body = {
+      documentoCedula : faker.random.words(3),
+      documentoIdentificacion : faker.random.words(3),
+      documentoSolicitud : faker.random.words(3),
+      documentoTitulo : faker.random.words(3),
+      domicilio : faker.address.streetAddress(),
+      email : faker.internet.email("test"),
+      especialidad : faker.random.word(),
+      institucionEducativa : faker.random.word(),
+      licenciatura : faker.random.word(),
+      nombreCompleto: faker.name.findName(),
+      telefono : faker.random.number(max = 99999999),
+      numeroCedulaEspecialidad : faker.random.number(max = 9999999),
+      numeroCedulaLicenciatura : faker.random.number(max = 9999999)
+    }
+    var result = await popularSolicitudes(body);
+    console.log(`${i} : ${result}`)
+    if(result === 1){
+      console.log(body);
+      res.send(500)
+    }
+  }
+  res.send(200)
+}
+
 app.get('/getSolicitudes/p:numPag', verifyToken, verifySolicitudes, getSolicitudes);
+
+// app.get('/popularSolicitudes', generarSolicitudes );
 
 app.post('/newSolicitud', verifyToken, verifySolicitudes, insertSolicitud);
 
@@ -116,6 +168,7 @@ function verifySolicitudes(req, res, next) {
       const valid = await validateUser(authData.user.correo)
       const tipoUsuario = authData.user.tipo_de_usuario
       if (valid && (tipoUsuario === 'AD' || tipoUsuario === 'SU' || tipoUsuario === 'PS')) {
+        req.tipoUsuario = tipoUsuario;
         next();
       } else {
         res.send({
@@ -129,9 +182,32 @@ function verifySolicitudes(req, res, next) {
 
 //    USUARIOS
 
+async function generarUsuarios(req, res){
+  let body = {}
+  for(var i = 0; i < 50; i++){
+    body = {
+     correo : `user${i<10?'0'+i:i}@usuarios.com`,
+     password: 'password',
+     tipoUsuario: faker.random.arrayElement(['AD', 'PS']),
+     nombre: faker.name.findName(),
+    }
+    var result = await popularUsuarios(body);
+    if(result === 1){
+      console.log(i + " Error")
+      res.send(500);
+      return;
+    }
+  }
+  res.send(200)
+}
+
 app.get('/getUsuarios/p:numPag', verifyToken, verifySuperUser, getUsuarios);
 
-app.post('/nuevoUsuario', verifyNewUser, insertUsuario);
+app.post('/nuevoUsuario', insertUsuario);
+
+// app.get('/popularUsuarios', generarUsuarios);
+
+// app.post('/nuevoUsuario', verifyNewUser, insertUsuario);
 
 app.post('/updateUsuario', verifyToken, verifySuperUser, updateUsuario);
 
@@ -296,27 +372,6 @@ function verifyNewUser(req, res, next) {
       }
     })
   }
-
-  // const multer = require('multer');
-  // const os = require('os');
-  // const upload = multer({dest: os.tmpdir() });
-
-  // app.post('/testFiles', upload.single('file', function(req, res) {
-  //   const title = req.body.title;
-  //   const file = req.file;
-
-  //   console.log(title);
-  //   console.log(file);
-  // }));
-
-
-  // function testFiles(req,res){
-  //   let body = req?.multipart?.body;
-  //   console.log(body);
-  //   res.send(
-  //     "ok"
-  //   );
-  // }
 
   //Run Backend Services
   app.listen(port)
