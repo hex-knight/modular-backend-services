@@ -375,6 +375,26 @@ function verifyNewUser(req, res, next) {
     })
   }
 
+
+  const uploadFile = require("./Middleware/Upload");
+const upload = async (req, res) => {
+  try {
+    await uploadFile(req, res);
+    if (req.file == undefined) {
+      return res.send({ message: "Please upload a file!" });
+    }
+    res.send({
+      message: "Uploaded the file successfully: " + req.file.originalname,
+    });
+  } catch (err) {
+    res.send({
+      message: `Could not upload the file: ${req.file.originalname}. ${err}`,
+    });
+  }
+};
+
+app.post("/upload", upload);
+
   //Run Backend Services
   app.listen(port)
   console.log('API REST Corriendo en:  ' + port)
