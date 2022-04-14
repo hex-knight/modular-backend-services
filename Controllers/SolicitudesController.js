@@ -77,8 +77,10 @@ encontrarSolicitud = async (req, res) =>{
     let result = await pool.query(`select 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', status ':''}
-    from solicitudes where num_cedula_especialidad = $1 or num_cedula_licenciatura = $1`,[cedula.toString()]);
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', std.status as status ':''}
+    from solicitudes sl
+    ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?' left outer join status_domain as std on sl.status = std.codigo_status ':' '}
+    where num_cedula_especialidad = $1 or num_cedula_licenciatura = $1`,[cedula.toString()]);
     if(result.rows.length > 0){
       res.send({
         statusCode: 200,
@@ -111,8 +113,10 @@ buscarSolicitud = async (req, res) =>{
     let result = await pool.query(`select 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', status ':''}
-    from solicitudes s2 where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', std.status as status ':''}
+    from solicitudes s2 
+    ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?' left outer join status_domain as std on s2.status = std.codigo_status ':' '}
+    where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
     or documento_cedula like $1 or domicilio like $1
     or email like $1 or especialidad like $1 or institucion_educativa like $1
     or nombre_completo like $1 or telefono like $1 or num_cedula_especialidad like $1

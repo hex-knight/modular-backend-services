@@ -168,7 +168,7 @@ function verifySolicitudes(req, res, next) {
       const valid = await validateUser(authData.user.correo)
       const tipoUsuario = authData.user.tipo_de_usuario
       if (valid && (tipoUsuario === 'AD' || tipoUsuario === 'SU' || tipoUsuario === 'PS')) {
-        req.tipoUsuario = tipoUsuario;
+        req.tipoUsuario = 'PS';
         next();
       } else {
         res.send({
