@@ -185,7 +185,7 @@ cambiarStatus = async (req, res) =>{
         [body.nextStatus , body.idSolicitud]);
       res.send({
         statusCode: 200,
-        body: `Queja ${body.idSolicitud} actualizada correctamente.`
+        body: `Solicitud ${body.idSolicitud} actualizada correctamente.`
       });
     } else {
       res.send({
@@ -270,7 +270,7 @@ updateSolicitud = async (req, res) => {
         body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.idSolicitud]);
       res.send({
         statusCode: 200,
-        body: `Queja ${body.idSolicitud} actualizada correctamente.`
+        body: `Solicitud ${body.idSolicitud} actualizada correctamente.`
       });
     } else {
       res.send({
