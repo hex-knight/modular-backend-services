@@ -176,6 +176,32 @@ reportesSolicitudes = async (req, res) => {
   }
 }
 
+cambiarStatus = async (req, res) =>{ 
+  let body = req.body;
+  try {
+    const search = await pool.query('SELECT * FROM SOLICITUDES WHERE id_solicitud IN ($1)', [body.idSolicitud]);
+    if (search.rows.length > 0) {
+      const update = await pool.query(`UPDATE SOLICITUDES SET status = $1 WHERE id_solicitud = $2`,
+        [body.nextStatus , body.idSolicitud]);
+      res.send({
+        statusCode: 200,
+        body: `Queja ${body.idSolicitud} actualizada correctamente.`
+      });
+    } else {
+      res.send({
+        statusCode: 200,
+        body: "Solicitud no encontrada."
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al actualizar el registro."
+    });
+  }
+}
+
 insertSolicitud = async (req, res) => {
   let body = req.body;
   try {
@@ -295,5 +321,6 @@ module.exports = {
   encontrarSolicitud,
   buscarSolicitud,
   reportesSolicitudes,
-  popularSolicitudes
+  popularSolicitudes,
+  cambiarStatus
 }

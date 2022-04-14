@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes,
+const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus,
 } = require('./Controllers/SolicitudesController');
 const {
   getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja, reportesQuejas, popularQuejas
@@ -143,6 +143,8 @@ async function generarSolicitudes(req, res){
 app.get('/getSolicitudes/p:numPag', verifyToken, verifySolicitudes, getSolicitudes);
 
 // app.get('/popularSolicitudes', generarSolicitudes );
+
+app.post('/cambiarStatus', verifyToken, verifyQuejas, cambiarStatus);
 
 app.post('/newSolicitud', verifyToken, verifySolicitudes, insertSolicitud);
 
