@@ -375,11 +375,12 @@ function verifyNewUser(req, res, next) {
     })
   }
 
-
+  global.__basedir = __dirname;
   const uploadFile = require("./Middleware/Upload");
 const upload = async (req, res) => {
   try {
     await uploadFile(req, res);
+    console.log(req.body.nombre)
     if (req.file == undefined) {
       return res.send({ message: "Please upload a file!" });
     }
@@ -387,6 +388,7 @@ const upload = async (req, res) => {
       message: "Uploaded the file successfully: " + req.file.originalname,
     });
   } catch (err) {
+    console.log(err)
     res.send({
       message: `Could not upload the file: ${req.file.originalname}. ${err}`,
     });
