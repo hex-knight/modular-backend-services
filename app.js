@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const uploadFile = require("./Middleware/Upload");
+// const uploadFile = require("./Middleware/Upload");
 const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus,
 } = require('./Controllers/SolicitudesController');
 const {
@@ -11,7 +11,7 @@ const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsua
 const { login, validateUser } = require('./Controllers/AuthController');
 const jwt = require('jsonwebtoken');
 const { default: faker } = require('@faker-js/faker');
-global.__basedir = __dirname;
+// global.__basedir = __dirname;
 //Variables: 
 var app = express()
 var port = process.env.PORT || 8080
@@ -379,8 +379,8 @@ function verifyNewUser(req, res, next) {
     })
   }
 
-
-  
+  global.__basedir = __dirname;
+  const uploadFile = require("./Middleware/Upload");
 const upload = async (req, res) => {
   try {
     await uploadFile(req, res);
@@ -393,6 +393,7 @@ const upload = async (req, res) => {
       message: "Uploaded the file successfully: " + req.file.originalname,
     });
   } catch (err) {
+    console.log(err)
     res.send({
       message: `Could not upload the file: ${req.file.originalname}. ${err}`,
     });
