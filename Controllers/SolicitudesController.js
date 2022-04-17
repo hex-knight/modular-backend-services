@@ -203,7 +203,11 @@ cambiarStatus = async (req, res) =>{
 }
 
 insertSolicitud = async (req, res) => {
-  let body = req.body;
+  
+  let body = req.documentoCedula;
+  console.log(req.documentoCedula)
+  res.send(200);
+  return;
   try {
     let nextId = await pool.query('select id_solicitud from solicitudes q order by id_solicitud desc limit 1');
     body.idSolicitud = nextId.rows.length > 0 ? nextId.rows[0].id_solicitud + 1 : 1;

@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const uploadFile = require("./Middleware/Upload");
 const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus,
 } = require('./Controllers/SolicitudesController');
 const {
@@ -10,7 +11,7 @@ const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsua
 const { login, validateUser } = require('./Controllers/AuthController');
 const jwt = require('jsonwebtoken');
 const { default: faker } = require('@faker-js/faker');
-
+global.__basedir = __dirname;
 //Variables: 
 var app = express()
 var port = process.env.PORT || 8080
@@ -146,7 +147,10 @@ app.get('/getSolicitudes/p:numPag', verifyToken, verifySolicitudes, getSolicitud
 
 app.post('/cambiarStatus', verifyToken, verifyQuejas, cambiarStatus);
 
-app.post('/newSolicitud', verifyToken, verifySolicitudes, insertSolicitud);
+app.post('/newSolicitud', (req, res, next) =>{
+  console.log(req)
+  next()
+}, insertSolicitud);
 
 app.post('/updateSolicitud', verifyToken, verifySolicitudes, updateSolicitud);
 
@@ -376,13 +380,15 @@ function verifyNewUser(req, res, next) {
   }
 
 
-  const uploadFile = require("./Middleware/Upload");
+  
 const upload = async (req, res) => {
   try {
     await uploadFile(req, res);
+    console.log(req.body.nombre)
     if (req.file == undefined) {
       return res.send({ message: "Please upload a file!" });
     }
+    
     res.send({
       message: "Uploaded the file successfully: " + req.file.originalname,
     });
