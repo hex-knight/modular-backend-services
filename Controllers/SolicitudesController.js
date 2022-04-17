@@ -15,6 +15,15 @@ const pool = new Pool({
 //   port: 5432,
 // })
 
+const renameKeys = (keysMap, obj) =>
+    Object.keys(obj).reduce(
+    (acc, key) => ({
+        ...acc,
+        ...{ [keysMap[key] || key]: keysMap[key].replace(/_./g, (m) => m[1].toUpperCase()) }
+    }),
+    {}
+);
+
 function paginate(arr, size) {
   return arr.reduce((acc, val, i) => {
     let idx = Math.floor(i / size)
@@ -45,6 +54,7 @@ getSolicitudes = async (req, res) => {
       let noRecords  = query.rows.length;
       let noPages = Math.ceil(query.rows.length/recordsPerPage)
       let array = paginate(query.rows, recordsPerPage);
+      // TO DO rename keys
       if (numPag >= array.length) {
         res.send({
           statusCode: 500,
@@ -103,6 +113,8 @@ encontrarSolicitud = async (req, res) =>{
 
 buscarSolicitud = async (req, res) =>{
   try {
+    let numPag = req.params.numPag - 1;
+    let recordsPerPage = 5;
     let body = req.body;
     if(body?.query === undefined || body.query === '' ){
       res.send({
@@ -122,10 +134,29 @@ buscarSolicitud = async (req, res) =>{
     or nombre_completo like $1 or telefono like $1 or num_cedula_especialidad like $1
     or num_cedula_licenciatura like $1`,['%'+body.query+'%']);
     if(result.rows.length > 0){
-      res.send({
-        statusCode: 200,
-        body: result.rows
-      });
+      let noRecords  = result.rows.length;
+      let noPages = Math.ceil(result.rows.length/recordsPerPage)
+      let array = paginate(result.rows, recordsPerPage);
+      if (numPag >= array.length) {
+        res.send({
+          statusCode: 500,
+          body: "Número de página inválido."
+        })
+      }else {
+        res.send({
+          statusCode: 200,
+          body: {
+            array: array[numPag],
+            noRecords,
+            noPages,
+            page: numPag + 1
+          }
+        })
+      }
+      // res.send({
+      //   statusCode: 200,
+      //   body: result.rows
+      // });
     }else{
       res.send({
         statusCode: 500,
@@ -273,7 +304,7 @@ updateSolicitud = async (req, res) => {
       });
     } else {
       res.send({
-        statusCode: 200,
+        statusCode: 500,
         body: "Solicitud no encontrada."
       });
     }

@@ -155,7 +155,7 @@ app.get('/deleteSolicitud/:idSolicitud', verifyToken, verifySolicitudes, deleteS
 
 app.get('/mostrarSolicitud/:noCedula', verifyToken, verifySolicitudes, encontrarSolicitud);
 
-app.post('/buscarSolicitud', verifyToken, verifySolicitudes, buscarSolicitud);
+app.post('/buscarSolicitud/p:numPag', buscarSolicitud);
 
 app.post('/reporteSolicitudes', verifyToken, verifySolicitudes, reportesSolicitudes);
 
