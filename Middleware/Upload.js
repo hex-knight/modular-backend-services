@@ -1,21 +1,20 @@
 const util = require("util");
 const multer = require("multer");
 const maxSize = 5 * 1024 * 1024;
-// global.__basedir = __dirname;
-let storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, __basedir + "/resources/uploads/");
+global.__basedir = __dirname;
+var storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, __basedir +"/resources/uploads/");
   },
-  filename: (req, file, cb) => {
-      let name = file.originalname
-    // console.log("***************"+file.originalname);
-    console.log(name);
-    cb(null, name);
-  },
+  filename: (req, file, callback) => {
+    let name = req.idSolicitud + "_" + Math.random().toString().replace('.','') +"."+ file.originalname.split('.').pop(); 
+    callback(null, name);
+  }
 });
-let uploadFile = multer({
+let uploadFile = 
+  multer({
   storage: storage,
-  limits: { fileSize: maxSize },
-}).single("file");
+}).array("multi-files", 4);
+
 let uploadFileMiddleware = util.promisify(uploadFile);
 module.exports = uploadFileMiddleware;

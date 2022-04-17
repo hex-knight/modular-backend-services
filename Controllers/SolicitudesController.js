@@ -202,15 +202,16 @@ cambiarStatus = async (req, res) =>{
   }
 }
 
-insertSolicitud = async (req, res) => {
-  
-  let body = req.documentoCedula;
-  console.log(req.documentoCedula)
-  res.send(200);
-  return;
+const getId = async () =>{
+  let nextId = await pool.query('select id_solicitud from solicitudes q order by id_solicitud desc limit 1');
+  nextId = nextId.rows.length > 0 ? nextId.rows[0].id_solicitud + 1 : 1;
+  return nextId;
+}
+
+insertSolicitud = async (body) => {
+  // console.log(body)
   try {
-    let nextId = await pool.query('select id_solicitud from solicitudes q order by id_solicitud desc limit 1');
-    body.idSolicitud = nextId.rows.length > 0 ? nextId.rows[0].id_solicitud + 1 : 1;
+    // let nextId = await pool.query('select id_solicitud from solicitudes q order by id_solicitud desc limit 1');
     response = await pool.query(`
     insert into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
     documento_titulo, domicilio, email, especialidad, estatus, id_solicitud,
@@ -223,16 +224,10 @@ insertSolicitud = async (req, res) => {
       body.especialidad, body.idSolicitud, body.institucionEducativa,
       body.licenciatura, body.nombreCompleto, body.telefono,
       body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.status])
-    res.send({
-      statusCode: 200,
-      body: "Guardado Correctamente"
-    });
+    return 0;
   } catch (error) {
     console.error(error);
-    res.send({
-      statusCode: 500,
-      body: "Ocurrió un error al guardar el registro."
-    });
+    return 1;
   }
 }
 
@@ -326,5 +321,6 @@ module.exports = {
   buscarSolicitud,
   reportesSolicitudes,
   popularSolicitudes,
-  cambiarStatus
+  cambiarStatus,
+  getId
 }

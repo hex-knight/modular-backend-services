@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 // const uploadFile = require("./Middleware/Upload");
-const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus,
+const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus, nextId, getId,
 } = require('./Controllers/SolicitudesController');
 const {
   getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja, reportesQuejas, popularQuejas
@@ -147,10 +147,7 @@ app.get('/getSolicitudes/p:numPag', verifyToken, verifySolicitudes, getSolicitud
 
 app.post('/cambiarStatus', verifyToken, verifyQuejas, cambiarStatus);
 
-app.post('/newSolicitud', (req, res, next) =>{
-  console.log(req)
-  next()
-}, insertSolicitud);
+// app.post('/newSolicitud', insertSolicitud);
 
 app.post('/updateSolicitud', verifyToken, verifySolicitudes, updateSolicitud);
 
@@ -383,24 +380,42 @@ function verifyNewUser(req, res, next) {
   const uploadFile = require("./Middleware/Upload");
 const upload = async (req, res) => {
   try {
+    let _nextId = await getId();
+    req.idSolicitud = _nextId;
     await uploadFile(req, res);
-    console.log(req.body.nombre)
-    if (req.file == undefined) {
-      return res.send({ message: "Please upload a file!" });
+    let body = req.body;
+    body.idSolicitud = _nextId;
+    console.log(body);
+    let response = await insertSolicitud(body);
+    if(response === 0){
+      await uploadFile(req, res);
+    }else if(response === 1){
+      res.send({
+        statusCode: 500,
+        body: "Ocurrió un error al guardar la solicitud."
+      });
+      //TODO: Eliminar los archivos cuando ocurra un error.
     }
-    
     res.send({
-      message: "Uploaded the file successfully: " + req.file.originalname,
+      statusCode: 200,
+      body: `Solicitud ${_nextId} guardada correctamente.`
     });
   } catch (err) {
-    console.log(err)
-    res.send({
-      message: `Could not upload the file: ${req.file.originalname}. ${err}`,
+    console.log(err);
+    if (error.code === "LIMIT_UNEXPECTED_FILE") {
+      return res.send({
+        statusCode: 500,
+        body: "Error. Demasiados archivos."
+      });
+    }
+    return res.send({
+      statuscode: 500,
+      body: "Ocurrió un error al guardar la solicitud."
     });
   }
 };
 
-app.post("/upload", upload);
+app.post("/newSolicitud", upload);
 
   //Run Backend Services
   app.listen(port)
