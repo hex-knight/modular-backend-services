@@ -15,14 +15,15 @@ const pool = new Pool({
 //   port: 5432,
 // })
 
-const renameKeys = (keysMap, obj) =>
-    Object.keys(obj).reduce(
-    (acc, key) => ({
-        ...acc,
-        ...{ [keysMap[key] || key]: keysMap[key].replace(/_./g, (m) => m[1].toUpperCase()) }
-    }),
-    {}
-);
+renameKeys = (obj) => {
+  Object.keys(obj).map((key) => {
+    if (key.includes('_')) {
+      obj[`${key.replace(/_./g, (m) => m[1].toUpperCase())}`] = obj[`${key}`]
+      delete obj[`${key}`]
+    }
+  })
+  return obj;
+}
 
 function paginate(arr, size) {
   return arr.reduce((acc, val, i) => {
@@ -41,9 +42,9 @@ getSolicitudes = async (req, res) => {
     const query = await pool.query(`SELECT 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', std.status as status':''} 
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status' : ''} 
     FROM SOLICITUDES sl
-    ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?' left outer join status_domain as std on sl.status = std.codigo_status ':' '}
+    ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '}
     order by fecha desc`);
     if (query.rows.length == 0) {
       res.send({
@@ -51,10 +52,12 @@ getSolicitudes = async (req, res) => {
         body: "No existen registros."
       })
     } else {
-      let noRecords  = query.rows.length;
-      let noPages = Math.ceil(query.rows.length/recordsPerPage)
+      let noRecords = query.rows.length;
+      let noPages = Math.ceil(query.rows.length / recordsPerPage)
       let array = paginate(query.rows, recordsPerPage);
-      // TO DO rename keys
+      array[numPag].map((item) => {
+        renameKeys(item)
+      })
       if (numPag >= array.length) {
         res.send({
           statusCode: 500,
@@ -81,22 +84,22 @@ getSolicitudes = async (req, res) => {
   }
 }
 
-encontrarSolicitud = async (req, res) =>{
+encontrarSolicitud = async (req, res) => {
   let cedula = req.params.noCedula
   try {
     let result = await pool.query(`select 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', std.status as status ':''}
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status ' : ''}
     from solicitudes sl
-    ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?' left outer join status_domain as std on sl.status = std.codigo_status ':' '}
-    where num_cedula_especialidad = $1 or num_cedula_licenciatura = $1`,[cedula.toString()]);
-    if(result.rows.length > 0){
+    ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '}
+    where num_cedula_especialidad = $1 or num_cedula_licenciatura = $1`, [cedula.toString()]);
+    if (result.rows.length > 0) {
       res.send({
         statusCode: 200,
-        body: result.rows[0]
+        body: renameKeys(result.rows[0])
       });
-    }else{
+    } else {
       res.send({
         statusCode: 500,
         body: "No se encontró la solicitud con la cédula especificada."
@@ -111,12 +114,12 @@ encontrarSolicitud = async (req, res) =>{
   }
 }
 
-buscarSolicitud = async (req, res) =>{
+buscarSolicitud = async (req, res) => {
   try {
     let numPag = req.params.numPag - 1;
-    let recordsPerPage = 5;
+    let recordsPerPage = 10;
     let body = req.body;
-    if(body?.query === undefined || body.query === '' ){
+    if (body?.query === undefined || body.query === '') {
       res.send({
         statusCode: 500,
         body: "Error. Favor de revisar su búsqueda."
@@ -125,24 +128,27 @@ buscarSolicitud = async (req, res) =>{
     let result = await pool.query(`select 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?', std.status as status ':''}
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status ' : ''}
     from solicitudes s2 
-    ${req.tipoUsuario==='AD'||req.tipoUsuario==='SU'?' left outer join status_domain as std on s2.status = std.codigo_status ':' '}
+    ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on s2.status = std.codigo_status ' : ' '}
     where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
     or documento_cedula like $1 or domicilio like $1
     or email like $1 or especialidad like $1 or institucion_educativa like $1
     or nombre_completo like $1 or telefono like $1 or num_cedula_especialidad like $1
-    or num_cedula_licenciatura like $1`,['%'+body.query+'%']);
-    if(result.rows.length > 0){
-      let noRecords  = result.rows.length;
-      let noPages = Math.ceil(result.rows.length/recordsPerPage)
+    or num_cedula_licenciatura like $1`, ['%' + body.query + '%']);
+    if (result.rows.length > 0) {
+      let noRecords = result.rows.length;
+      let noPages = Math.ceil(result.rows.length / recordsPerPage)
       let array = paginate(result.rows, recordsPerPage);
+      array[numPag].map((item) => {
+        renameKeys(item)
+      })
       if (numPag >= array.length) {
         res.send({
           statusCode: 500,
           body: "Número de página inválido."
         })
-      }else {
+      } else {
         res.send({
           statusCode: 200,
           body: {
@@ -157,7 +163,7 @@ buscarSolicitud = async (req, res) =>{
       //   statusCode: 200,
       //   body: result.rows
       // });
-    }else{
+    } else {
       res.send({
         statusCode: 500,
         body: "No se encontraron resultados."
@@ -177,22 +183,22 @@ reportesSolicitudes = async (req, res) => {
     let body = req.body;
     let result = await pool.query(`select * from solicitudes where 
     fecha > $1 and
-    fecha < $2`,[body.inicio, body.fin]);
-    if(result.rows.length > 0){
-      const ini = parseInt(body.inicio.substring(5,7));
-      const fin = parseInt(body.fin.substring(5,7));
+    fecha < $2`, [body.inicio, body.fin]);
+    if (result.rows.length > 0) {
+      const ini = parseInt(body.inicio.substring(5, 7));
+      const fin = parseInt(body.fin.substring(5, 7));
       let response = {}
       result.rows.map((record) => {
-        let month = record.fecha.getMonth()+1
-        response[`${(month<10?'0':'')+month.toString()}`]===undefined?
-        response[`${(month<10?'0':'')+month.toString()}`] = [record] : 
-        response[`${(month<10?'0':'')+month.toString()}`].push(record)
+        let month = record.fecha.getMonth() + 1
+        response[`${(month < 10 ? '0' : '') + month.toString()}`] === undefined ?
+          response[`${(month < 10 ? '0' : '') + month.toString()}`] = [renameKeys(record)] :
+          response[`${(month < 10 ? '0' : '') + month.toString()}`].push(renameKeys(record))
       })
       res.send({
         statusCode: 200,
         body: response
       })
-    }else{
+    } else {
       res.send({
         statusCode: 500,
         body: "No se encontraron resultados."
@@ -207,13 +213,13 @@ reportesSolicitudes = async (req, res) => {
   }
 }
 
-cambiarStatus = async (req, res) =>{ 
+cambiarStatus = async (req, res) => {
   let body = req.body;
   try {
     const search = await pool.query('SELECT * FROM SOLICITUDES WHERE id_solicitud IN ($1)', [body.idSolicitud]);
     if (search.rows.length > 0) {
       const update = await pool.query(`UPDATE SOLICITUDES SET status = $1 WHERE id_solicitud = $2`,
-        [body.nextStatus , body.idSolicitud]);
+        [body.nextStatus, body.idSolicitud]);
       res.send({
         statusCode: 200,
         body: `Solicitud ${body.idSolicitud} actualizada correctamente.`
@@ -233,7 +239,7 @@ cambiarStatus = async (req, res) =>{
   }
 }
 
-const getId = async () =>{
+const getId = async () => {
   let nextId = await pool.query('select id_solicitud from solicitudes q order by id_solicitud desc limit 1');
   nextId = nextId.rows.length > 0 ? nextId.rows[0].id_solicitud + 1 : 1;
   return nextId;

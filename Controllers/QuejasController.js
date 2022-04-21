@@ -15,6 +15,16 @@ const pool = new Pool({
 //   port: 5432,
 // })
 
+renameKeys = (obj) => {
+  Object.keys(obj).map((key) => {
+    if (key.includes('_')) {
+      obj[`${key.replace(/_./g, (m) => m[1].toUpperCase())}`] = obj[`${key}`]
+      delete obj[`${key}`]
+    }
+  })
+  return obj;
+}
+
 function paginate(arr, size) {
   return arr.reduce((acc, val, i) => {
     let idx = Math.floor(i / size)
@@ -39,6 +49,9 @@ getQuejas = async (req, res) => {
       let noRecords  = query.rows.length;
       let noPages = Math.ceil(query.rows.length/recordsPerPage)
       let array = paginate(query.rows, recordsPerPage);
+      array[numPag].map((item) => {
+        renameKeys(item)
+      })
       if (numPag >= array.length) {
         res.send({
           statusCode: 500,
@@ -72,7 +85,7 @@ encontrarQueja = async (req, res) =>{
     if(result.rows.length > 0){
       res.send({
         statusCode: 200,
-        body: result.rows[0]
+        body: renameKeys(result.rows[0])
       });
     }else{
       res.send({
@@ -186,6 +199,8 @@ deleteQueja = async (req, res) => {
 
 buscarQueja = async (req, res) =>{
   try {
+    let numPag = req.params.numPag - 1;
+    let recordsPerPage = 10;
     let body = req.body;
     if(body?.query === undefined || body.query === '' ){
       res.send({
@@ -196,11 +211,30 @@ buscarQueja = async (req, res) =>{
     let result = await pool.query(`select * from quejas where CAST(id_queja AS VARCHAR(9)) LIKE $1 or 
     descripcion like $1 or licenciatura like $1 or nombre_completo like $1 or numero_cedula_espec like $1
     or numero_cedula_lic like $1 `,['%'+body.query+'%']);
+    
     if(result.rows.length > 0){
-      res.send({
-        statusCode: 200,
-        body: result.rows
-      });
+      let noRecords = result.rows.length;
+      let noPages = Math.ceil(result.rows.length / recordsPerPage)
+      let array = paginate(result.rows, recordsPerPage);
+      array[numPag].map((item) => {
+        renameKeys(item)
+      })
+      if (numPag >= array.length) {
+        res.send({
+          statusCode: 500,
+          body: "Número de página inválido."
+        })
+      } else {
+        res.send({
+          statusCode: 200,
+          body: {
+            array: array[numPag],
+            noRecords,
+            noPages,
+            page: numPag + 1
+          }
+        })
+      }
     }else{
       res.send({
         statusCode: 500,
@@ -229,8 +263,8 @@ reportesQuejas = async (req, res) => {
       result.rows.map((record) => {
         let month = record.fecha.getMonth()+1
         response[`${(month<10?'0':'')+month.toString()}`]===undefined?
-        response[`${(month<10?'0':'')+month.toString()}`] = [record] : 
-        response[`${(month<10?'0':'')+month.toString()}`].push(record)
+        response[`${(month<10?'0':'')+month.toString()}`] = [renameKeys(record)] : 
+        response[`${(month<10?'0':'')+month.toString()}`].push(renameKeys(record))
       })
       res.send({
         statusCode: 200,
