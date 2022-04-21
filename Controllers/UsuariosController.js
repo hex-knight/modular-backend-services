@@ -17,21 +17,7 @@ const pool = new Pool({
 //   port: 5432,
 // })
 
-getTiposDeUsuarios = async (req, res) => {
-  try {
-    const response = await pool.query('SELECT * FROM USUARIOS_DOMAIN');
-    res.send({
-      statusCode: 200,
-      body: response.rows
-    })
-  } catch (error) {
-    console.error(error)
-    res.send({
-      statusCode: 500,
-      body: "There was an error retrieving the records."
-    })
-  }
-}
+
 
 function paginate(arr, size) {
   return arr.reduce((acc, val, i) => {
@@ -259,7 +245,6 @@ module.exports = {
   insertUsuario,
   updateUsuario,
   deleteUsuario,
-  getTiposDeUsuarios,
   buscarUsuario,
   popularUsuarios
 }

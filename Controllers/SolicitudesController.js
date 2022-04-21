@@ -349,6 +349,10 @@ deleteSolicitud = async (req, res) => {
   }
 }
 
+generarResumen = async (req, res ) => {
+  res.send(200);
+}
+
 module.exports = {
   getSolicitudes,
   insertSolicitud,
@@ -359,5 +363,6 @@ module.exports = {
   reportesSolicitudes,
   popularSolicitudes,
   cambiarStatus,
-  getId
+  getId,
+  generarResumen
 }

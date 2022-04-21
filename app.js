@@ -1,17 +1,21 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 // const uploadFile = require("./Middleware/Upload");
-const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus, nextId, getId,
+const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus, nextId, getId, generarResumen,
 } = require('./Controllers/SolicitudesController');
 const {
   getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja, reportesQuejas, popularQuejas
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
-const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, getTiposDeUsuarios, buscarUsuario, popularUsuarios } = require('./Controllers/UsuariosController');
+const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, buscarUsuario, popularUsuarios } = require('./Controllers/UsuariosController');
 const { login, validateUser } = require('./Controllers/AuthController');
 const jwt = require('jsonwebtoken');
 const { default: faker } = require('@faker-js/faker');
-// global.__basedir = __dirname;
+global.__basedir = __dirname;
+  const uploadFile = require("./Middleware/Upload");
+const { getPaises, getTiposDeUsuarios } = require('./Controllers/CatalogsController');
+
+
 //Variables: 
 var app = express()
 var port = process.env.PORT || 8080
@@ -328,6 +332,8 @@ function verifyNewUser(req, res, next) {
 
   //    CATALOGS
 
+  app.get('/getPaises', getPaises);
+
   app.get('/getTiposDeUsuarios', verifyToken, verifyAdmin, getTiposDeUsuarios)
 
   function verifyAdmin(req, res, next) {
@@ -376,8 +382,7 @@ function verifyNewUser(req, res, next) {
     })
   }
 
-  global.__basedir = __dirname;
-  const uploadFile = require("./Middleware/Upload");
+
 const upload = async (req, res) => {
   try {
     let _nextId = await getId();
@@ -416,6 +421,12 @@ const upload = async (req, res) => {
 };
 
 app.post("/newSolicitud", upload);
+
+// REPORTES Y RESUMENES
+
+app.post('/generarResumen', generarResumen);
+
+
 
   //Run Backend Services
   app.listen(port)
