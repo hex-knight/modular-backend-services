@@ -42,9 +42,10 @@ getSolicitudes = async (req, res) => {
     const query = await pool.query(`SELECT 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status' : ''} 
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, pd.nombre as pais, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status' : ''} 
     FROM SOLICITUDES sl
-    ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '}
+    ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '} 
+    join paises_domain pd on sl.pais = pd.iso2 
     order by fecha desc`);
     if (query.rows.length == 0) {
       res.send({
@@ -90,9 +91,10 @@ encontrarSolicitud = async (req, res) => {
     let result = await pool.query(`select 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status ' : ''}
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, pd.nombre as pais, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status ' : ''}
     from solicitudes sl
     ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '}
+    join paises_domain pd on sl.pais = pd.iso2 
     where num_cedula_especialidad = $1 or num_cedula_licenciatura = $1`, [cedula.toString()]);
     if (result.rows.length > 0) {
       res.send({
@@ -128,9 +130,10 @@ buscarSolicitud = async (req, res) => {
     let result = await pool.query(`select 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status ' : ''}
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, pd.nombre as pais, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status ' : ''}
     from solicitudes s2 
     ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on s2.status = std.codigo_status ' : ' '}
+    join paises_domain pd on sl.pais = pd.iso2 
     where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
     or documento_cedula like $1 or domicilio like $1
     or email like $1 or especialidad like $1 or institucion_educativa like $1
@@ -253,14 +256,14 @@ insertSolicitud = async (body) => {
     insert into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
     documento_titulo, domicilio, email, especialidad, estatus, id_solicitud,
     institucion_educativa, licenciatura, nombre_completo, telefono, eliminado, 
-    num_cedula_especialidad, num_cedula_licenciatura, fecha, status
+    num_cedula_especialidad, num_cedula_licenciatura, fecha, status, pais
     ) values (
-    $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, CURRENT_TIMESTAMP, $15)`,
+    $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, CURRENT_TIMESTAMP, $15, $16)`,
       [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud,
       body.documentoTitulo, body.domicilio, body.email,
       body.especialidad, body.idSolicitud, body.institucionEducativa,
       body.licenciatura, body.nombreCompleto, body.telefono,
-      body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.status])
+      body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.status, body.pais])
     return 0;
   } catch (error) {
     console.error(error);
@@ -298,12 +301,12 @@ updateSolicitud = async (req, res) => {
     if (search.rows.length > 0) {
       const update = await pool.query(`UPDATE SOLICITUDES SET documento_cedula = $1, documento_identificacion = $2, documento_solicitud = $3, 
     documento_titulo = $4, domicilio = $5, email = $6, especialidad = $7, institucion_educativa = $8, licenciatura = $9,
-    nombre_completo = $10, telefono = $11, num_cedula_especialidad = $12, num_cedula_licenciatura = $13 WHERE id_solicitud = $14`,
+    nombre_completo = $10, telefono = $11, num_cedula_especialidad = $12, num_cedula_licenciatura = $13, pais = $15 WHERE id_solicitud = $14`,
         [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud,
         body.documentoTitulo, body.domicilio, body.email,
         body.especialidad, body.institucionEducativa,
         body.licenciatura, body.nombreCompleto, body.telefono,
-        body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.idSolicitud]);
+        body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.idSolicitud, body.pais]);
       res.send({
         statusCode: 200,
         body: `Solicitud ${body.idSolicitud} actualizada correctamente.`
