@@ -7,13 +7,9 @@ const pool = new Pool({
   password: 'rossetastoned001',
   port: 5432,
 })
-// const pool = new Pool({
-//   user: 'postgres',
-//   host: 'localhost',
-//   database: 'postgres',
-//   password: 'hex',
-//   port: 5432,
-// })
+
+const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
+                "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
 
 renameKeys = (obj) => {
   Object.keys(obj).map((key) => {
@@ -352,8 +348,71 @@ deleteSolicitud = async (req, res) => {
   }
 }
 
+
+
+
 generarResumen = async (req, res ) => {
-  res.send(200);
+  try{
+    let body = req.body;
+    let result = await pool.query(`select * from solicitudes where 
+    fecha > $1 and
+    fecha < $2`, [body.inicio, body.fin]);
+    let conteoQuejas = await pool.query(`select id_queja, fecha from quejas where fecha > $1 and
+    fecha < $2`, [body.inicio, body.fin]);
+    if(result.rows.length> 0){
+      let conteoPaises = {}
+    let response = {}
+    let quejas = {}
+    result.rows.map((item)=>{
+      let month = item.fecha.getMonth()
+      response[`${months[month]}`] === undefined ?
+      response[`${months[month]}`] =  [item] :
+      response[`${months[month]}`].push(item)
+      conteoPaises[`${item.pais}`] === undefined ?
+      conteoPaises[`${item.pais}`] = 0 : null
+    })
+    conteoQuejas.rows.map((item)=>{
+      let month = item.fecha.getMonth()
+      quejas[`${months[month]}`] === undefined ?
+      quejas[`${months[month]}`] =  [item] :
+      quejas[`${months[month]}`].push(item)
+    })
+    let status = {}
+    let _conteoPaises = {}
+    for(let i = 0; i < months.length ; i++){
+      status = {"SR": 0, "PR": 0, "AD": 0, "RE": 0}
+      _conteoPaises = { ...conteoPaises }
+      if(response[`${months[i]}`] !== undefined){
+        response[`${months[i]}`].map((item) =>{
+          status[`${item.status}`] = status[`${item.status}`] + 1
+          _conteoPaises[`${item.pais}`] = _conteoPaises[`${item.pais}`] + 1
+        })
+        response[`${months[i]}`] = {
+          status,
+          regiones: _conteoPaises,
+          quejas: quejas[`${months[i]}`] === undefined ? 
+            0 : quejas[`${months[i]}`].length
+        }
+
+      }
+    }
+    res.send({
+      statusCode: 200,
+      body: response
+    })
+    }else{
+      res.send({
+        statusCode: 500,
+        body: "No se encontraron datos dentro del rango de fechas seleccionado."
+      })
+    }
+  }catch(error){
+    console.log(error);
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al generar el resumen."
+    })
+  }
 }
 
 module.exports = {
