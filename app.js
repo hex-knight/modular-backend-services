@@ -88,7 +88,7 @@ app.get('/deleteQueja/:idQueja', verifyToken, verifyQuejas, deleteQueja);
 
 app.get('/mostrarQueja/:noCedula', verifyToken, verifyQuejas, encontrarQueja);
 
-app.post('/buscarQueja', verifyToken, verifyQuejas, buscarQueja);
+app.post('/buscarQueja/p:numPag', buscarQueja);
 
 app.post('/reporteQuejas', verifyToken, verifyQuejas, reportesQuejas);
 
@@ -418,6 +418,18 @@ const upload = async (req, res) => {
       body: "Ocurrió un error al guardar la solicitud."
     });
   }
+};
+
+const download = (req, res) => {
+  const fileName = req.params.name;
+  const directoryPath = __basedir + "/resources/static/assets/uploads/";
+  res.download(directoryPath + fileName, fileName, (err) => {
+    if (err) {
+      res.status(500).send({
+        message: "Could not download the file. " + err,
+      });
+    }
+  });
 };
 
 app.post("/newSolicitud", upload);
