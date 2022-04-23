@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+var fs = require('fs');
 // const uploadFile = require("./Middleware/Upload");
 const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus, nextId, getId, generarResumen,
 } = require('./Controllers/SolicitudesController');
@@ -422,7 +423,7 @@ const upload = async (req, res) => {
 
 const download = (req, res) => {
   const fileName = req.params.name;
-  const directoryPath = __basedir + "/resources/static/assets/uploads/";
+  const directoryPath = __basedir +"/resources/uploads/";
   res.download(directoryPath + fileName, fileName, (err) => {
     if (err) {
       res.status(500).send({
@@ -432,8 +433,30 @@ const download = (req, res) => {
   });
 };
 
+
+
+const getListFiles = (req, res) => {
+  const directoryPath = __basedir +"/resources/uploads/";
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      res.status(500).send({
+        message: "Unable to scan files!",
+      });
+    }
+    let fileInfos = [];
+    files.forEach((file) => {
+      fileInfos.push({
+        name: file,
+        url: directoryPath + file,
+      });
+    });
+    res.status(200).send(fileInfos);
+  });
+};
+
 app.post("/newSolicitud", upload);
 
+app.get("/files", getListFiles);
 // REPORTES Y RESUMENES
 
 app.post('/generarResumen', generarResumen);
