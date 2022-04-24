@@ -80,7 +80,6 @@ getSolicitudes = async (req, res) => {
             item.archivos.push(files)
           }
         })
-        
       })
       if (numPag >= array.length) {
         res.send({
@@ -110,7 +109,8 @@ getSolicitudes = async (req, res) => {
 }
 
 encontrarSolicitud = async (req, res) => {
-  let cedula = req.params.noCedula
+  let idSolicitud = req.params.idSolicitud
+  let fileNames = getFileNames()
   try {
     let result = await pool.query(`select 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
@@ -119,8 +119,15 @@ encontrarSolicitud = async (req, res) => {
     from solicitudes sl 
     ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '}
      left outer join paises_domain pd on sl.pais = pd.iso2 
-     where num_cedula_especialidad = $1 or num_cedula_licenciatura = $1`, [cedula.toString()]);
-    if (result.rows.length > 0) {
+     where id_solicitud = $1`, [idSolicitud.toString()]);
+     if (result.rows.length > 0) {
+      result.rows[0]["archivos"] = []
+      fileNames.forEach((files)=>{
+          if(files.includes(result.rows[0].id_solicitud.toString() + "_")){
+            console.log(files)
+            result.rows[0].archivos.push(files)
+          }
+      })
       res.send({
         statusCode: 200,
         body: renameKeys(result.rows[0])
@@ -145,6 +152,7 @@ buscarSolicitud = async (req, res) => {
     let numPag = req.params.numPag - 1;
     let recordsPerPage = 10;
     let body = req.body;
+    let fileNames = getFileNames()
     if (body?.query === undefined || body.query === '') {
       res.send({
         statusCode: 500,
@@ -169,6 +177,14 @@ buscarSolicitud = async (req, res) => {
       let array = paginate(result.rows, recordsPerPage);
       array[numPag].map((item) => {
         renameKeys(item)
+        item.archivos = []
+      })
+      fileNames.forEach((files)=>{
+        array[numPag].forEach((item)=>{
+          if(files.includes(item.idSolicitud.toString() + "_")){
+            item.archivos.push(files)
+          }
+        })
       })
       if (numPag >= array.length) {
         res.send({
