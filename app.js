@@ -434,9 +434,8 @@ const download = (req, res) => {
 };
 
 
-
 const getListFiles = (req, res) => {
-  const directoryPath = __basedir +"/resources/uploads/";
+  const directoryPath =__basedir +"/resources/uploads/";
   fs.readdir(directoryPath, function (err, files) {
     if (err) {
       res.status(500).send({
@@ -454,9 +453,11 @@ const getListFiles = (req, res) => {
   });
 };
 
+
 app.post("/newSolicitud", upload);
 
 app.get("/files", getListFiles);
+app.get("/files/:name", download);
 // REPORTES Y RESUMENES
 
 app.post('/generarResumen', generarResumen);

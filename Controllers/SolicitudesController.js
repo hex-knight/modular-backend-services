@@ -1,5 +1,5 @@
 const { Pool, Client } = require('pg')
-
+var fs = require('fs');
 const pool = new Pool({
   user: 'masteruser',
   host: 'modulardev.car4wskxw1fx.us-east-1.rds.amazonaws.com',
@@ -31,9 +31,27 @@ function paginate(arr, size) {
   }, [])
 }
 
+function getFileNames(){
+  const directoryPath = __basedir +"/resources/uploads/";
+  let fileInfos = [];
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) {
+      console.log(err)
+      return [];
+    }
+    files.forEach((file) => {
+        fileInfos.push(
+          file
+        )
+    });
+  });
+  return fileInfos
+};
+
 getSolicitudes = async (req, res) => {
   let numPag = req.params.numPag - 1;
   let recordsPerPage = 10;
+  let fileNames = getFileNames()
   try {
     const query = await pool.query(`SELECT 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
@@ -54,13 +72,23 @@ getSolicitudes = async (req, res) => {
       let array = paginate(query.rows, recordsPerPage);
       array[numPag].map((item) => {
         renameKeys(item)
+        item.archivos = []
+      })
+      fileNames.forEach((files)=>{
+        array[numPag].forEach((item)=>{
+          if(files.includes(item.idSolicitud.toString() + "_")){
+            item.archivos.push(files)
+          }
+        })
+        
       })
       if (numPag >= array.length) {
         res.send({
           statusCode: 500,
-          body: "Número de página inválido."
+          body: "Número de página inválido.",
         })
       } else {
+        console.log(fileNames)
         res.send({
           statusCode: 200,
           body: {
@@ -68,7 +96,7 @@ getSolicitudes = async (req, res) => {
             noRecords,
             noPages,
             page: numPag + 1
-          }
+          },
         })
       }
     }
