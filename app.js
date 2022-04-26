@@ -462,9 +462,9 @@ app.get("/files/:name", download);
 
 // CARGA PESADA DE DATOS
 
-app.post("/cargarQuejas", cargarQuejas);
+app.post("/cargarQuejas", verifyToken, verifyQuejas, cargarQuejas);
 
-app.post('/generarResumen', generarResumen);
+app.post('/generarResumen', verifyToken, verifySolicitudes, generarResumen);
 
 
 
