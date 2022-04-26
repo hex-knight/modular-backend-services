@@ -5,7 +5,7 @@ var fs = require('fs');
 const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus, nextId, getId, generarResumen,
 } = require('./Controllers/SolicitudesController');
 const {
-  getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja, reportesQuejas, popularQuejas
+  getQuejas, insertQueja, updateQueja, deleteQueja, encontrarQueja, buscarQueja, reportesQuejas, popularQuejas, cargarQuejas
 } = require('./Controllers/QuejasController');
 var cors = require('cors');
 const { getUsuarios, insertUsuario, updateUsuario, deleteUsuario, buscarUsuario, popularUsuarios } = require('./Controllers/UsuariosController');
@@ -59,23 +59,23 @@ function verifyToken(req, res, next) {
 
 //      QUEJAS
 // const { faker } = require('@faker-js/faker');
-async function generarQuejas(req, res){
-  let body = {}
-  for(var i = 0; i < 50; i++){
-    body = {
-      descripcion : faker.random.words(3),
-      nombreCompleto : faker.name.findName(),
-      licenciatura : faker.random.word(),
-      numeroCedulaEsp : faker.random.number(max = 9999999),
-      numeroCedulaLic : faker.random.number(max = 9999999)
-    }
-    var result = await popularQuejas(body);
-    if(result === 1){
-      res.send(500)
-    }
-  }
-  res.send(200)
-}
+// async function generarQuejas(req, res){
+//   let body = {}
+//   for(var i = 0; i < 50; i++){
+//     body = {
+//       descripcion : faker.random.words(3),
+//       nombreCompleto : faker.name.findName(),
+//       licenciatura : faker.random.word(),
+//       numeroCedulaEsp : faker.random.number(max = 9999999),
+//       numeroCedulaLic : faker.random.number(max = 9999999)
+//     }
+//     var result = await popularQuejas(body);
+//     if(result === 1){
+//       res.send(500)
+//     }
+//   }
+//   res.send(200)
+// }
 
 app.get('/getQuejas/p:numPag', verifyToken, verifyQuejas, getQuejas);
 
@@ -118,33 +118,33 @@ function verifyQuejas(req, res, next) {
 
 //    SOLICITUDES
 
-async function generarSolicitudes(req, res){
-  let body = {}
-  for(var i = 0; i < 50; i++){
-    body = {
-      documentoCedula : faker.random.words(3),
-      documentoIdentificacion : faker.random.words(3),
-      documentoSolicitud : faker.random.words(3),
-      documentoTitulo : faker.random.words(3),
-      domicilio : faker.address.streetAddress(),
-      email : faker.internet.email("test"),
-      especialidad : faker.random.word(),
-      institucionEducativa : faker.random.word(),
-      licenciatura : faker.random.word(),
-      nombreCompleto: faker.name.findName(),
-      telefono : faker.random.number(max = 99999999),
-      numeroCedulaEspecialidad : faker.random.number(max = 9999999),
-      numeroCedulaLicenciatura : faker.random.number(max = 9999999)
-    }
-    var result = await popularSolicitudes(body);
-    console.log(`${i} : ${result}`)
-    if(result === 1){
-      console.log(body);
-      res.send(500)
-    }
-  }
-  res.send(200)
-}
+// async function generarSolicitudes(req, res){
+//   let body = {}
+//   for(var i = 0; i < 50; i++){
+//     body = {
+//       documentoCedula : faker.random.words(3),
+//       documentoIdentificacion : faker.random.words(3),
+//       documentoSolicitud : faker.random.words(3),
+//       documentoTitulo : faker.random.words(3),
+//       domicilio : faker.address.streetAddress(),
+//       email : faker.internet.email("test"),
+//       especialidad : faker.random.word(),
+//       institucionEducativa : faker.random.word(),
+//       licenciatura : faker.random.word(),
+//       nombreCompleto: faker.name.findName(),
+//       telefono : faker.random.number(max = 99999999),
+//       numeroCedulaEspecialidad : faker.random.number(max = 9999999),
+//       numeroCedulaLicenciatura : faker.random.number(max = 9999999)
+//     }
+//     var result = await popularSolicitudes(body);
+//     console.log(`${i} : ${result}`)
+//     if(result === 1){
+//       console.log(body);
+//       res.send(500)
+//     }
+//   }
+//   res.send(200)
+// }
 
 app.get('/getSolicitudes/p:numPag', verifyToken, verifySolicitudes, getSolicitudes);
 
@@ -459,6 +459,10 @@ app.post("/newSolicitud", upload);
 app.get("/files", getListFiles);
 app.get("/files/:name", download);
 // REPORTES Y RESUMENES
+
+// CARGA PESADA DE DATOS
+
+app.post("/cargarQuejas", cargarQuejas);
 
 app.post('/generarResumen', generarResumen);
 

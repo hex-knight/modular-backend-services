@@ -1,3 +1,4 @@
+const res = require('express/lib/response')
 const { Pool, Client } = require('pg')
 
 const pool = new Pool({
@@ -126,21 +127,58 @@ insertQueja = async (req, res) => {
   }
 }
 
-popularQuejas = async (body) =>{
-  // let body = req.body;
-  try {
+guardarQueja = async(queja)=>{
+  try{
     let nextId = await pool.query('select id_queja from quejas q order by id_queja desc limit 1');
-    body.id_queja = nextId.rows.length > 0 ? nextId.rows[0].id_queja + 1 : 1;
-    response = await pool.query(`
-    insert into quejas (id_queja, descripcion, nombre_completo, licenciatura , 
-    numero_cedula_espec, numero_cedula_lic, fecha, eliminado) values (
-    $1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, '0')`,
-      [body.id_queja, body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEsp,
-      body.numeroCedulaLic])
-    return 0;
-  } catch (error) {
-    console.error(error);
+  queja.idQueja = nextId.rows.length > 0 ? nextId.rows[0].id_queja + 1 : 1;
+  response = await pool.query(`
+  insert into quejas (id_queja, descripcion, nombre_completo, licenciatura , 
+  numero_cedula_espec, numero_cedula_lic, fecha, eliminado) values (
+  $1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, '0')`,
+  [queja.idQueja, queja.descripcion, queja.nombreCompleto, queja.licenciatura, queja.numeroCedulaEsp,
+  queja.numeroCedulaLic]);
+  return 0;
+  }
+  catch(error){
+    console.log(error);
     return 1;
+  }
+}
+
+cargarQuejas = (req, res) =>{
+  let body = req.body;
+  try {
+    let quejas = [];
+    if(body.quejas.length > 0){
+      quejas = body.quejas;
+      console.log(quejas.length)
+      var result = 0;1
+      quejas.forEach(queja => {
+        result = guardarQueja(queja);
+        if(result === 1){
+          res.send({
+            statusCode: 500,
+            body: "Error. Lista de quejas vacía."
+          })
+          return;
+        }
+      });
+      res.send({
+        statusCode: 200,
+        body: `${quejas.length} quejas cargadas correctamente.`
+      })
+    }else{
+      res.send({
+        statusCode: 500,
+        body: "Error. Lista de quejas vacía."
+      })
+    }
+  } catch (error) {
+    console.log(error);
+    res.send({
+      statusCode: 500,
+      body: "Ocurrió un error al cargar las quejas."
+    })
   }
 }
 
@@ -293,5 +331,5 @@ module.exports = {
   encontrarQueja,
   buscarQueja,
   reportesQuejas,
-  popularQuejas
+  cargarQuejas
 }
