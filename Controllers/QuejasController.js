@@ -40,7 +40,7 @@ getQuejas = async (req, res) => {
   let numPag = req.params.numPag - 1;
   let recordsPerPage = 10;
   try {
-    const query = await pool.query('SELECT * FROM QUEJAS order by fecha desc');
+    const query = await pool.query(`SELECT * FROM QUEJAS where eliminado != '1' order by fecha desc`);
     if (query.rows.length == 0) {
       res.send({
         statusCode: 500,
@@ -82,7 +82,8 @@ getQuejas = async (req, res) => {
 encontrarQueja = async (req, res) =>{
   let cedula = req.params.noCedula
   try {
-    let result = await pool.query('select * from quejas where numero_cedula_espec = $1 or numero_cedula_lic = $1',[cedula.toString()]);
+    let result = await pool.query(`select * from quejas where numero_cedula_espec = $1 or numero_cedula_lic = $1
+    and eliminado != '1'`,[cedula.toString()]);
     if(result.rows.length > 0){
       res.send({
         statusCode: 200,
@@ -112,7 +113,7 @@ insertQueja = async (req, res) => {
     insert into quejas (id_queja, descripcion, nombre_completo, licenciatura , 
     numero_cedula_espec, numero_cedula_lic, fecha, eliminado) values (
     $1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, '0')`,
-      [body.id_queja, body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEsp,
+      [body.id_queja, body.descripcion, body.nombreCompleto, body.licenciatura, body.numeroCedulaEspec,
       body.numeroCedulaLic])
     res.send({
       statusCode: 200,
@@ -135,7 +136,7 @@ guardarQueja = async(queja)=>{
   insert into quejas (id_queja, descripcion, nombre_completo, licenciatura , 
   numero_cedula_espec, numero_cedula_lic, fecha, eliminado) values (
   $1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP, '0')`,
-  [queja.idQueja, queja.descripcion, queja.nombreCompleto, queja.licenciatura, queja.numeroCedulaEsp,
+  [queja.idQueja, queja.descripcion, queja.nombreCompleto, queja.licenciatura, queja.numeroCedulaEspec,
   queja.numeroCedulaLic]);
   return 0;
   }

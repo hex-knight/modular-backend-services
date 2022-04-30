@@ -77,7 +77,7 @@ function verifyToken(req, res, next) {
 //   res.send(200)
 // }
 
-app.get('/getQuejas/p:numPag', verifyToken, verifyQuejas, getQuejas);
+app.get('/getQuejas/p:numPag',  getQuejas);
 
 // app.get('/popularQuejas', generarQuejas);
 
@@ -85,7 +85,7 @@ app.post('/newQueja', verifyToken, verifyQuejas, insertQueja);
 
 app.post('/updateQueja', verifyToken, verifyQuejas, updateQueja);
 
-app.get('/deleteQueja/:idQueja', verifyToken, verifyQuejas, deleteQueja);
+app.get('/deleteQueja/:idQueja', deleteQueja);
 
 app.get('/mostrarQueja/:noCedula', verifyToken, verifyQuejas, encontrarQueja);
 
