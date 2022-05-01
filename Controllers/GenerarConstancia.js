@@ -9,7 +9,7 @@ global.__basedir = __dirname;
 armarCuerpo = (body) => {
   var cuerpo = `De conformidad con la petición de ${body.nombreCompleto} egresado(a) de la carrera de ${body.licenciatura}, de la universidad ${body.institucionEducativa}, con número de cédula ${body.numCedulaLicenciatura}, en la cual solicita CONSTANCIA de búsqueda de posibles quejas derivadas de su práctica profesional, me permito informar a Usted que, luego de una revisión exhaustiva de datos contenidos en los archivos y base de datos de esta Institución, se concluye que NO EXISTEN quejas vigentes registradas contra ${body.nombreCompleto}.`
   for(var i = 0; i< cuerpo.length ; i++){
-    if(i % 80 === 0){
+    if(i % 80 === 0 && i >=80){
         while (cuerpo[i] !== ' ') {
           i++
         }
@@ -56,7 +56,7 @@ crearConstancia = async (body) => {
   firstPage.drawText( // CUERPO DE LA CARTA
     `${armarCuerpo(body)}`, {
     x: 70,
-    y: height - 200,
+    y: height - 215,
     size: 12,
     font: helveticaFont,
     color: rgb(0, 0, 0),
