@@ -4,7 +4,7 @@ const maxSize = 5 * 1024 * 1024;
 global.__basedir = __dirname;
 var storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, __basedir +"/resources/uploads/");
+    callback(null, __basedir +"/../Middleware/resources/uploads/");
   },
   filename: (req, file, callback) => {
     let name = req.idSolicitud + "_" + Math.random().toString().replace('.','') +"."+ file.originalname.split('.').pop(); 

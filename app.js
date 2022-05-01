@@ -408,8 +408,8 @@ const upload = async (req, res) => {
       statusCode: 200,
       body: `Solicitud ${_nextId} guardada correctamente.`
     });
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    console.log(error);
     if (error.code === "LIMIT_UNEXPECTED_FILE") {
       return res.send({
         statusCode: 500,
