@@ -62,8 +62,8 @@ getSolicitudes = async (req, res) => {
     ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '} 
     join paises_domain pd on sl.pais = pd.iso2 
     where eliminado = '0' 
-    ${req.correo === 'PS'
-     ? 'and email = \''+req.correo+'\' ' : ' '}
+    ${req.tipoUsuario === 'PS'
+     ? 'and email =\''+req.correo+'\'' : ' '}
     order by fecha desc`);
     if (query.rows.length == 0) {
       res.send({
