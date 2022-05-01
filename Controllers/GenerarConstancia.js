@@ -1,10 +1,19 @@
-import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+const { degrees, PDFDocument, rgb, StandardFonts } = require('pdf-lib')
 
-async function modifyPdf() {
-  const url = 'https://pdf-lib.js.org/assets/with_update_sections.pdf'
-  const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
+var fs = require('fs')
+// import fs from 'fs'
 
-  const pdfDoc = await PDFDocument.load(existingPdfBytes)
+modifyPdf = async(req, res) =>{
+
+const uint8Array = fs.readFileSync(
+  './Constancia.pdf'
+  )
+// const pdfDoc3 = await PDFDocument.load(uint8Array)
+
+  // const url = 'https://pdf-lib.js.org/assets/with_update_sections.pdf'
+  // const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
+
+  const pdfDoc = await PDFDocument.load(uint8Array)
   const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
 
   const pages = pdfDoc.getPages()
@@ -20,4 +29,9 @@ async function modifyPdf() {
   })
 
   const pdfBytes = await pdfDoc.save()
+  res.sendStatus(200)
+}
+
+module.exports = {
+  modifyPdf
 }

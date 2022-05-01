@@ -16,6 +16,7 @@ global.__basedir = __dirname;
   const uploadFile = require("./Middleware/Upload");
 const { getPaises, getTiposDeUsuarios } = require('./Controllers/CatalogsController');
 
+const { modifyPdf } = require('./Controllers/GenerarConstancia');
 
 //Variables: 
 var app = express()
@@ -177,6 +178,7 @@ function verifySolicitudes(req, res, next) {
       const tipoUsuario = authData.user.tipo_de_usuario
       if (valid && (tipoUsuario === 'AD' || tipoUsuario === 'SU' || tipoUsuario === 'PS')) {
         req.tipoUsuario = tipoUsuario;
+        req.correo = authData.user.correo
         next();
       } else {
         res.send({
@@ -459,6 +461,8 @@ app.post("/newSolicitud", upload);
 app.get("/files", getListFiles);
 app.get("/files/:name", download);
 // REPORTES Y RESUMENES
+
+app.get("/testConstancia", modifyPdf)
 
 // CARGA PESADA DE DATOS
 

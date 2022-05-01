@@ -61,6 +61,8 @@ getSolicitudes = async (req, res) => {
     ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '} 
     join paises_domain pd on sl.pais = pd.iso2 
     where eliminado != '1' 
+    ${req.correo === 'PS'
+     ? 'and email = \''+req.correo+'\' ' : ' '}
     order by fecha desc`);
     if (query.rows.length == 0) {
       res.send({
@@ -167,6 +169,8 @@ buscarSolicitud = async (req, res) => {
     from solicitudes s2 
     ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on s2.status = std.codigo_status ' : ' '}
     join paises_domain pd on s2.pais = pd.iso2 
+    ${req.correo === 'PS'
+     ? 'where email = \''+req.correo+'\' and ' : ' '}
     where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
     or documento_cedula like $1 or domicilio like $1
     or email like $1 or especialidad like $1 or institucion_educativa like $1
