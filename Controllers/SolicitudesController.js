@@ -60,7 +60,7 @@ getSolicitudes = async (req, res) => {
     FROM SOLICITUDES sl
     ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '} 
     join paises_domain pd on sl.pais = pd.iso2 
-    where eliminado != '1' 
+    where eliminado = '0' 
     ${req.correo === 'PS'
      ? 'and email = \''+req.correo+'\' ' : ' '}
     order by fecha desc`);
@@ -73,7 +73,10 @@ getSolicitudes = async (req, res) => {
       let noRecords = query.rows.length;
       let noPages = Math.ceil(query.rows.length / recordsPerPage)
       let array = paginate(query.rows, recordsPerPage);
-      array[numPag].map((item) => {
+      array[numPag].map((item, index) => {
+        if(item.eliminado==="1"){
+          array[numPag].splice(index, 1)
+        }
         renameKeys(item)
         item.archivos = []
       })
@@ -165,22 +168,26 @@ buscarSolicitud = async (req, res) => {
     let result = await pool.query(`select 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, pd.nombre as pais, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status ' : ''}
+    telefono, eliminado, num_cedula_especialidad, num_cedula_licenciatura, pd.nombre as pais, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status ' : ''}
     from solicitudes s2 
     ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on s2.status = std.codigo_status ' : ' '}
     join paises_domain pd on s2.pais = pd.iso2 
-    ${req.correo === 'PS'
-     ? 'where email = \''+req.correo+'\' and ' : ' '}
     where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
     or documento_cedula like $1 or domicilio like $1
     or email like $1 or especialidad like $1 or institucion_educativa like $1
     or nombre_completo like $1 or telefono like $1 or num_cedula_especialidad like $1
-    or num_cedula_licenciatura like $1`, ['%' + body.query + '%']);
+    or num_cedula_licenciatura like $1
+    and eliminado = \'0\'
+    ${req.tipoUsuario === 'PS'
+    ? 'and email = \''+req.correo+'\'' : ' '}`, ['%' + body.query + '%']);
     if (result.rows.length > 0) {
       let noRecords = result.rows.length;
       let noPages = Math.ceil(result.rows.length / recordsPerPage)
       let array = paginate(result.rows, recordsPerPage);
-      array[numPag].map((item) => {
+      array[numPag].map((item,index) => {
+        if(item.eliminado==="1"){
+          array[numPag].splice(index, 1)
+        }
         renameKeys(item)
         item.archivos = []
       })

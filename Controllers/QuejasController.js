@@ -50,7 +50,10 @@ getQuejas = async (req, res) => {
       let noRecords  = query.rows.length;
       let noPages = Math.ceil(query.rows.length/recordsPerPage)
       let array = paginate(query.rows, recordsPerPage);
-      array[numPag].map((item) => {
+      array[numPag].map((item, index) => {
+        if(item.eliminado==="1"){
+          array[numPag].splice(index, 1)
+        }
         renameKeys(item)
       })
       if (numPag >= array.length) {
@@ -255,7 +258,10 @@ buscarQueja = async (req, res) =>{
       let noRecords = result.rows.length;
       let noPages = Math.ceil(result.rows.length / recordsPerPage)
       let array = paginate(result.rows, recordsPerPage);
-      array[numPag].map((item) => {
+      array[numPag].map((item, index) => {
+        if(item.eliminado==="1"){
+          array[numPag].splice(index, 1)
+        }
         renameKeys(item)
       })
       if (numPag >= array.length) {
