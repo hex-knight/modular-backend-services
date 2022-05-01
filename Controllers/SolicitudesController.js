@@ -1,5 +1,6 @@
 const { Pool, Client } = require('pg')
 var fs = require('fs');
+const { crearConstancia } = require('./GenerarConstancia');
 const pool = new Pool({
   user: 'masteruser',
   host: 'modulardev.car4wskxw1fx.us-east-1.rds.amazonaws.com',
@@ -121,9 +122,9 @@ encontrarSolicitud = async (req, res) => {
     let result = await pool.query(`select 
     documento_cedula, documento_identificacion, documento_solicitud, documento_titulo, domicilio,
     email, especialidad, id_solicitud, institucion_educativa, licenciatura, nombre_completo, 
-    telefono, num_cedula_especialidad, num_cedula_licenciatura, pd.nombre as pais, fecha ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ', std.status as status ' : ' '}
+    telefono, num_cedula_especialidad, num_cedula_licenciatura, pd.nombre as pais, fecha, std.status as status
     from solicitudes sl 
-    ${req.tipoUsuario === 'AD' || req.tipoUsuario === 'SU' ? ' left outer join status_domain as std on sl.status = std.codigo_status ' : ' '}
+    left outer join status_domain as std on sl.status = std.codigo_status
      left outer join paises_domain pd on sl.pais = pd.iso2 
      where id_solicitud = $1`, [idSolicitud.toString()]);
      if (result.rows.length > 0) {
@@ -134,6 +135,16 @@ encontrarSolicitud = async (req, res) => {
             result.rows[0].archivos.push(files)
           }
       })
+      let solicitud = {}
+      solicitud = renameKeys(result.rows[0])
+
+      if(solicitud.status === "Admitida"){
+        solicitud.constancia = crearConstancia(solicitud);
+      }
+      //quitar key status si el usuario es PS
+      if(req.tipoUsuario === "PS"){
+        delete solicitud['status']
+      }
       res.send({
         statusCode: 200,
         body: renameKeys(result.rows[0])

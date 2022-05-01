@@ -159,7 +159,7 @@ app.post('/updateSolicitud', verifyToken, verifySolicitudes, updateSolicitud);
 
 app.get('/deleteSolicitud/:idSolicitud', verifyToken, verifySolicitudes, deleteSolicitud);
 
-app.get('/mostrarSolicitud/:idSolicitud', verifyToken, verifySolicitudes, encontrarSolicitud);
+app.get('/mostrarSolicitud/:idSolicitud', encontrarSolicitud);
 
 app.post('/buscarSolicitud/p:numPag', verifyToken, verifySolicitudes ,buscarSolicitud);
 
@@ -442,6 +442,7 @@ const getListFiles = (req, res) => {
     if (err) {
       res.status(500).send({
         message: "Unable to scan files!",
+        error : err
       });
     }
     let fileInfos = [];
@@ -462,7 +463,7 @@ app.get("/files", getListFiles);
 app.get("/files/:name", download);
 // REPORTES Y RESUMENES
 
-app.get("/testConstancia", modifyPdf)
+// app.get("/testConstancia", modifyPdf)
 
 // CARGA PESADA DE DATOS
 
