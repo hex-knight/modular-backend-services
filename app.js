@@ -78,7 +78,7 @@ function verifyToken(req, res, next) {
 //   res.send(200)
 // }
 
-app.get('/getQuejas/p:numPag',  getQuejas);
+app.get('/getQuejas/p:numPag', verifyToken, verifyQuejas,  getQuejas);
 
 // app.get('/popularQuejas', generarQuejas);
 
@@ -86,11 +86,11 @@ app.post('/newQueja', verifyToken, verifyQuejas, insertQueja);
 
 app.post('/updateQueja', verifyToken, verifyQuejas, updateQueja);
 
-app.get('/deleteQueja/:idQueja', deleteQueja);
+app.get('/deleteQueja/:idQueja', verifyToken, verifyQuejas, deleteQueja);
 
 app.get('/mostrarQueja/:noCedula', verifyToken, verifyQuejas, encontrarQueja);
 
-app.post('/buscarQueja/p:numPag', buscarQueja);
+app.post('/buscarQueja/p:numPag', verifyToken, verifyQuejas, buscarQueja);
 
 app.post('/reporteQuejas', verifyToken, verifyQuejas, reportesQuejas);
 
@@ -161,7 +161,7 @@ app.get('/deleteSolicitud/:idSolicitud', verifyToken, verifySolicitudes, deleteS
 
 app.get('/mostrarSolicitud/:idSolicitud', verifyToken, verifySolicitudes, encontrarSolicitud);
 
-app.post('/buscarSolicitud/p:numPag', buscarSolicitud);
+app.post('/buscarSolicitud/p:numPag', verifyToken, verifySolicitudes ,buscarSolicitud);
 
 app.post('/reporteSolicitudes', verifyToken, verifySolicitudes, reportesSolicitudes);
 
@@ -456,7 +456,7 @@ const getListFiles = (req, res) => {
 };
 
 
-app.post("/newSolicitud", upload);
+app.post("/newSolicitud", verifyToken, verifySolicitudes, upload);
 
 app.get("/files", getListFiles);
 app.get("/files/:name", download);

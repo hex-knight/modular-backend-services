@@ -1,12 +1,14 @@
 const { degrees, PDFDocument, rgb, StandardFonts } = require('pdf-lib')
 
 var fs = require('fs')
-// import fs from 'fs'
 
+const { readFile, stat, writeFile } = require("fs/promises");
+// import fs from 'fs'
+global.__basedir = __dirname;
 modifyPdf = async(req, res) =>{
 
 const uint8Array = fs.readFileSync(
-  './Constancia.pdf'
+  __basedir +"\\Constancia.pdf"
   )
 // const pdfDoc3 = await PDFDocument.load(uint8Array)
 
@@ -19,16 +21,23 @@ const uint8Array = fs.readFileSync(
   const pages = pdfDoc.getPages()
   const firstPage = pages[0]
   const { width, height } = firstPage.getSize()
-  firstPage.drawText('This text was added with JavaScript!', {
-    x: 5,
-    y: height / 2 + 300,
-    size: 50,
+  firstPage.drawText(`Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do 
+  eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+  Ut enim ad minim veniam, quis nostrud exercitation ullamco 
+  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
+  irure dolor in reprehenderit in voluptate velit esse cillum 
+  dolore eu fugiat nulla pariatur. Excepteur sint occaecat 
+  cupidatat non proident, sunt in culpa qui officia deserunt 
+  mollit anim id est laborum`, {
+    x: 70,
+    y: height - 250,
+    size: 16,
     font: helveticaFont,
-    color: rgb(0.95, 0.1, 0.1),
-    rotate: degrees(-45),
+    color: rgb(0, 0, 0),
   })
-
-  const pdfBytes = await pdfDoc.save()
+  const pdfBytes = await pdfDoc.saveAsBase64()
+  await writeFile( __basedir + '\\Resultado.pdf', Buffer.from(pdfBytes, 'base64'));
+  // console.log(pdfBytes)
   res.sendStatus(200)
 }
 
