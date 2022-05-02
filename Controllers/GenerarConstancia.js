@@ -73,7 +73,7 @@ crearConstancia = async (body) => {
     })
     var salt = bcrypt.genSaltSync(10);
     var hash = bcrypt.hashSync(JSON.stringify(body), salt);
-    firstPage.drawText(`${hash}`, // FIRMA ELECTRONICA
+    firstPage.drawText(`[${hash}]`, // FIRMA ELECTRONICA
       {
         x: width - 500,
         y: height - 690,
