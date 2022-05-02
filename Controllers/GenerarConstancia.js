@@ -1,6 +1,8 @@
 const { degrees, PDFDocument, rgb, StandardFonts } = require('pdf-lib')
-
+const bcrypt = require('bcrypt')
 var fs = require('fs')
+
+
 
 const { readFile, stat, writeFile } = require("fs/promises");
 // import fs from 'fs'
@@ -8,12 +10,12 @@ global.__basedir = __dirname;
 
 armarCuerpo = (body) => {
   var cuerpo = `De conformidad con la petición de ${body.nombreCompleto} egresado(a) de la carrera de ${body.licenciatura}, de la universidad ${body.institucionEducativa}, con número de cédula ${body.numCedulaLicenciatura}, en la cual solicita CONSTANCIA de búsqueda de posibles quejas derivadas de su práctica profesional, me permito informar a Usted que, luego de una revisión exhaustiva de datos contenidos en los archivos y base de datos de esta Institución, se concluye que NO EXISTEN quejas vigentes registradas contra ${body.nombreCompleto}.`
-  for(var i = 0; i< cuerpo.length ; i++){
-    if(i % 80 === 0 && i >=80){
-        while (cuerpo[i] !== ' ') {
-          i++
-        }
-      cuerpo = cuerpo.slice(0,i) + "\n" + cuerpo.slice(i);
+  for (var i = 0; i < cuerpo.length; i++) {
+    if (i % 80 === 0 && i >= 80) {
+      while (cuerpo[i] !== ' ') {
+        i++
+      }
+      cuerpo = cuerpo.slice(0, i) + "\n" + cuerpo.slice(i);
     }
   }
   return cuerpo;
@@ -64,11 +66,27 @@ crearConstancia = async (body) => {
   firstPage.drawText(`${fecha.toLocaleDateString('es-MX', opciones)}.`, // FECHA
     {
       x: width - 308,
-      y: height - 476.2,
+      y: height - 491.2,
       size: 11,
       font: helveticaFont,
       color: rgb(0, 0, 0),
     })
+    var salt = bcrypt.genSaltSync(10);
+    var hash = bcrypt.hashSync(JSON.stringify(body), salt);
+    firstPage.drawText(`${hash}`, // FIRMA ELECTRONICA
+      {
+        x: width - 500,
+        y: height - 690,
+        size: 12,
+        font: helveticaFont,
+        color: rgb(0, 0, 0),
+      })
+    
+  bcrypt.hash(body.toString(), 9).then((hash) => {
+    console.log(hash)
+    
+  })
+
   const pdfBytes = await pdfDoc.saveAsBase64()
   await writeFile(__basedir + '\\Resultado.pdf', Buffer.from(pdfBytes, 'base64'));
   // console.log(pdfBytes)

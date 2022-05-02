@@ -159,7 +159,9 @@ app.post('/updateSolicitud', verifyToken, verifySolicitudes, updateSolicitud);
 
 app.get('/deleteSolicitud/:idSolicitud', verifyToken, verifySolicitudes, deleteSolicitud);
 
-app.get('/mostrarSolicitud/:idSolicitud', encontrarSolicitud);
+app.get('/mostrarSolicitud/:idSolicitud', 
+// verifyToken, verifySolicitudes,
+encontrarSolicitud);
 
 app.post('/buscarSolicitud/p:numPag', verifyToken, verifySolicitudes ,buscarSolicitud);
 

@@ -139,6 +139,8 @@ encontrarSolicitud = async (req, res) => {
       solicitud = renameKeys(result.rows[0])
 
       if(solicitud.status === "Admitida"){
+        // solicitud.firma = req.token
+        // console.log(req.headers["authorization"])
         solicitud.constancia = await crearConstancia(solicitud);
       }
       //quitar key status si el usuario es PS
