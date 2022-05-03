@@ -479,7 +479,7 @@ app.get("/files/:name", download);
 
 app.post("/cargarQuejas", verifyToken, verifyQuejas, cargarQuejas);
 
-app.post('/generarResumen', verifyToken, verifySolicitudes, generarResumen);
+app.post('/generarResumen',  generarResumen);
 
 
 

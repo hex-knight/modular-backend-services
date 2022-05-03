@@ -9,10 +9,14 @@ const { readFile, stat, writeFile } = require("fs/promises");
 global.__basedir = __dirname;
 
 armarCuerpo = (body) => {
-  var cuerpo = `De conformidad con la petición de ${body.nombreCompleto} egresad${body.sexo === 'H' ? 'o' : 'a'} de la carrera de ${body.licenciatura}, de la universidad ${body.institucionEducativa}, con número de cédula ${body.numCedulaLicenciatura}, en la cual solicita CONSTANCIA de búsqueda de posibles quejas derivadas de su práctica profesional, me permito informar a Usted que, luego de una revisión exhaustiva de datos contenidos en los archivos y base de datos de esta Institución, se concluye que NO EXISTEN quejas vigentes registradas contra ${body.nombreCompleto}.`
+  var universidad = body.institucionEducativa;
+  var cuerpo = `De conformidad con la petición de ${body.nombreCompleto} egresad${body.sexo === 'H' ? 'o' : 'a'} de la carrera de ${body.licenciatura}, de la Universidad ${body.institucionEducativa.toLowerCase().includes('universidad') ?
+    body.institucionEducativa.toString().replace('Universidad', '').replace('universidad', '') : body.institucionEducativa
+    }, con número de cédula ${body.numCedulaLicenciatura}, en la cual solicita CONSTANCIA de búsqueda de posibles quejas derivadas de su práctica profesional, me permito informar a Usted que, luego de una revisión exhaustiva de datos contenidos en los archivos y base de datos de esta Institución, se concluye que NO EXISTEN quejas vigentes registradas contra ${body.nombreCompleto}.`
+  
   for (var i = 0; i < cuerpo.length; i++) {
-    if (i % 80 === 0 && i >= 80) {
-      while (cuerpo[i] !== ' ' && i < cuerpo.length) {
+    if (i % 75 === 0 && i >= 75) {
+      while (!(cuerpo[i] === ' ' || cuerpo[i]==='.' || cuerpo[i]===',') && i < cuerpo.length) {
         i++
       }
       cuerpo = cuerpo.slice(0, i) + "\n" + cuerpo.slice(i);
@@ -65,7 +69,7 @@ crearConstancia = async (body) => {
     color: rgb(0, 0, 0),
   });
   var fecha_ = fecha.toLocaleDateString('es-MX', opciones);
-  firstPage.drawText(`${fecha_.replace(',','')}.`, // FECHA
+  firstPage.drawText(`${fecha_.replace(',', '')}.`, // FECHA
     {
       x: width - 308,
       y: height - 462,
@@ -76,7 +80,7 @@ crearConstancia = async (body) => {
   var hash = bcrypt.hashSync(JSON.stringify(body), 5);
   firstPage.drawText(`[${hash}]`, // FIRMA ELECTRONICA
     {
-      x: width - 500,
+      x: width - 520,
       y: height - 660,
       size: 12,
       font: helveticaFont,

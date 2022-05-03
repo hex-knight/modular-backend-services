@@ -129,8 +129,6 @@ encontrarSolicitud = async (req, res) => {
     left outer join paises_domain pd on sl.pais = pd.iso2 
     where id_solicitud = $1 
     ${req.tipoUsuario === 'PS' ? 'and email = \''+req.email+'\' ' : ' '}`, [idSolicitud.toString()]);
-    console.log(req.tipoUsuario)
-    console.log(req.email, result.rows[0].email)
      if (result.rows.length > 0) {
       result.rows[0]["archivos"] = []
       fileNames.forEach((files)=>{
@@ -434,9 +432,9 @@ generarResumen = async (req, res ) => {
     let body = req.body;
     let result = await pool.query(`select * from solicitudes where 
     fecha > $1 and
-    fecha < $2`, [body.inicio, body.fin]);
+    fecha < $2 order by fecha asc`, [body.inicio, body.fin]);
     let conteoQuejas = await pool.query(`select id_queja, fecha from quejas where fecha > $1 and
-    fecha < $2`, [body.inicio, body.fin]);
+    fecha < $2 order by fecha asc`, [body.inicio, body.fin]);
     if(result.rows.length> 0){
       let conteoPaises = {}
     let response = {}
