@@ -280,17 +280,24 @@ cambiarStatus = async (req, res) => {
   try {
     const search = await pool.query('SELECT * FROM SOLICITUDES WHERE id_solicitud IN ($1)', [body.idSolicitud]);
     if (search.rows.length > 0) {
-      if(body.nextStatus === 'AD'){
-        const update = await pool.query(`UPDATE SOLICITUDES SET status = $1, num_constancia = $3, num_oficio = $4 WHERE id_solicitud = $2`,
-        [body.nextStatus, body.idSolicitud, body.numConstancia, body.numOficio]);  
+      if(body.newStatus === search.rows[0].status){
+        res.send({
+          statusCode: 500,
+          body: `La solicitud ya se encuentra en status ${body.newStatus}`
+        });
       }else{
-        const update = await pool.query(`UPDATE SOLICITUDES SET status = $1 WHERE id_solicitud = $2`,
-        [body.nextStatus, body.idSolicitud]);
+        if(body.newStatus === 'AD'){
+          const update = await pool.query(`UPDATE SOLICITUDES SET status = $1, num_constancia = $3, num_oficio = $4 WHERE id_solicitud = $2`,
+          [body.newStatus, body.idSolicitud, body.numConstancia, body.numOficio]);  
+        }else{
+          const update = await pool.query(`UPDATE SOLICITUDES SET status = $1 WHERE id_solicitud = $2`,
+          [body.newStatus, body.idSolicitud]);
+        }
+        res.send({
+          statusCode: 200,
+          body: `Solicitud ${body.idSolicitud} actualizada correctamente.`
+        });
       }
-      res.send({
-        statusCode: 200,
-        body: `Solicitud ${body.idSolicitud} actualizada correctamente.`
-      });
     } else {
       res.send({
         statusCode: 200,
@@ -341,14 +348,15 @@ popularSolicitudes = async (body) => {
     insert into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
     documento_titulo, domicilio, email, especialidad, estatus, id_solicitud,
     institucion_educativa, licenciatura, nombre_completo, telefono, eliminado, 
-    num_cedula_especialidad, num_cedula_licenciatura, fecha
+    num_cedula_especialidad, num_cedula_licenciatura, fecha, sexo, status, pais
     ) values (
-    $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, CURRENT_TIMESTAMP)`,
+    $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, $15, $16, $17, $18)`,
       [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud,
       body.documentoTitulo, body.domicilio, body.email,
       body.especialidad, body.idSolicitud, body.institucionEducativa,
       body.licenciatura, body.nombreCompleto, body.telefono,
-      body.numCedulaEspecialidad, body.numCedulaLicenciatura])
+      body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.fecha,
+       body.sexo, body.status, body.pais])
     return 0;
   } catch (error) {
     console.error(error);

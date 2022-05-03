@@ -119,33 +119,43 @@ function verifyQuejas(req, res, next) {
 
 //    SOLICITUDES
 
-// async function generarSolicitudes(req, res){
-//   let body = {}
-//   for(var i = 0; i < 50; i++){
-//     body = {
-//       documentoCedula : faker.random.words(3),
-//       documentoIdentificacion : faker.random.words(3),
-//       documentoSolicitud : faker.random.words(3),
-//       documentoTitulo : faker.random.words(3),
-//       domicilio : faker.address.streetAddress(),
-//       email : faker.internet.email("test"),
-//       especialidad : faker.random.word(),
-//       institucionEducativa : faker.random.word(),
-//       licenciatura : faker.random.word(),
-//       nombreCompleto: faker.name.findName(),
-//       telefono : faker.random.number(max = 99999999),
-//       numeroCedulaEspecialidad : faker.random.number(max = 9999999),
-//       numeroCedulaLicenciatura : faker.random.number(max = 9999999)
-//     }
-//     var result = await popularSolicitudes(body);
-//     console.log(`${i} : ${result}`)
-//     if(result === 1){
-//       console.log(body);
-//       res.send(500)
-//     }
-//   }
-//   res.send(200)
-// }
+async function generarSolicitudes(req, res){
+  let body = {}
+  for(var i = 0; i < 1; i++){
+    body = {
+      documentoCedula : 'documento cedula',
+      documentoIdentificacion : 'documento identificacion',
+      documentoSolicitud : 'documento solicitud',
+      documentoTitulo : 'documento titulo',
+      domicilio : faker.address.streetAddress(),
+      email : `usuario${faker.random.number(max = 20)}@usuarios.com`,
+      especialidad : faker.random.word(),
+      institucionEducativa : faker.random.arrayElement([
+        'Universidad de Guadalajara', 'UNAM',
+        'Universidad Autónoma De Guadalajara','ITESO'
+      ]),
+      licenciatura : faker.random.arrayElement([
+        'Médico Cirujano y Partero', 'Cirujano Dentista', 
+        'Enfermería', 'Nutrición', 'Psicología', 'Ciencias Forenses'
+      ]),
+      nombreCompleto: faker.name.findName(),
+      telefono : faker.random.number(max = 99999999),
+      numeroCedulaEspecialidad : faker.random.number(min= 10000000, max = 9999999),
+      numeroCedulaLicenciatura : faker.random.number(min= 10000000, max = 9999999),
+      sexo: faker.random.arrayElement(['H', 'M']),
+      status: 'SR',
+      pais: faker.random.arrayElement(['MX', 'BO', 'CA', 'DE', 'US' ]),
+      fecha: `${faker.random.arrayElement(['2020','2021','2022'])}-${faker.random.number(max = 12)}-${faker.random.number(max=28)}`
+    }
+    var result = await popularSolicitudes(body);
+    console.log(`${i} : ${result}`)
+    if(result === 1){
+      console.log(body);
+      res.send(500)
+    }
+  }
+  res.send(200)
+}
 
 app.get('/getSolicitudes/p:numPag', verifyToken, verifySolicitudes, getSolicitudes);
 
