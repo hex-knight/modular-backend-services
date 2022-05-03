@@ -23,7 +23,7 @@ armarCuerpo = (body) => {
 
 crearConstancia = async (body) => {
   const uint8Array = fs.readFileSync(
-    __basedir + "\\resources\\Constancia.pdf"
+    __basedir + "/resources/Constancia.pdf"
   )
   const pdfDoc = await PDFDocument.load(uint8Array)
   const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
