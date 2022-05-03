@@ -142,7 +142,7 @@ encontrarSolicitud = async (req, res) => {
       let solicitud = {}
       solicitud = renameKeys(result.rows[0])
       if(solicitud.status === "Admitida"){
-        solicitud.constancia = await crearConstancia(solicitud);
+        solicitud = await crearConstancia(solicitud);
       }
       if(req.tipoUsuario === "PS"){
         delete solicitud['status']
