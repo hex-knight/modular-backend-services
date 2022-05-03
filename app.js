@@ -121,7 +121,7 @@ function verifyQuejas(req, res, next) {
 
 async function generarSolicitudes(req, res){
   let body = {}
-  for(var i = 0; i < 1; i++){
+  for(var i = 0; i < 500; i++){ //hasta el id
     body = {
       documentoCedula : 'documento cedula',
       documentoIdentificacion : 'documento identificacion',
@@ -140,12 +140,13 @@ async function generarSolicitudes(req, res){
       ]),
       nombreCompleto: faker.name.findName(),
       telefono : faker.random.number(max = 99999999),
-      numeroCedulaEspecialidad : faker.random.number(min= 10000000, max = 9999999),
-      numeroCedulaLicenciatura : faker.random.number(min= 10000000, max = 9999999),
+      numCedulaEspecialidad : faker.random.number(min= 1000000, max = 9999999),
+      numCedulaLicenciatura : faker.random.number(min= 1000000, max = 9999999),
       sexo: faker.random.arrayElement(['H', 'M']),
       status: 'SR',
       pais: faker.random.arrayElement(['MX', 'BO', 'CA', 'DE', 'US' ]),
-      fecha: `${faker.random.arrayElement(['2020','2021','2022'])}-${faker.random.number(max = 12)}-${faker.random.number(max=28)}`
+      fecha: `${faker.random.arrayElement(['2020','2021','2022'])}-${faker.random.arrayElement(['01','02','03','04','05','06','07','08','09','10','11','12'])}-${faker.random.arrayElement([
+        '01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28'])}`
     }
     var result = await popularSolicitudes(body);
     console.log(`${i} : ${result}`)
@@ -159,7 +160,7 @@ async function generarSolicitudes(req, res){
 
 app.get('/getSolicitudes/p:numPag', verifyToken, verifySolicitudes, getSolicitudes);
 
-// app.get('/popularSolicitudes', generarSolicitudes );
+app.get('/solicitudes', generarSolicitudes );
 
 app.post('/cambiarStatus', verifyToken, verifyQuejas, cambiarStatus);
 
@@ -191,6 +192,7 @@ function verifySolicitudes(req, res, next) {
       if (valid && (tipoUsuario === 'AD' || tipoUsuario === 'SU' || tipoUsuario === 'PS')) {
         req.tipoUsuario = tipoUsuario;
         req.correo = authData.user.correo
+        req.email = authData.user.correo
         next();
       } else {
         res.send({

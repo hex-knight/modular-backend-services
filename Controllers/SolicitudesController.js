@@ -64,7 +64,7 @@ getSolicitudes = async (req, res) => {
     where eliminado = '0' 
     ${req.tipoUsuario === 'PS'
      ? 'and email =\''+req.correo+'\'' : ' '}
-    order by fecha desc`);
+    order by id_solicitud desc`);
     if (query.rows.length == 0) {
       res.send({
         statusCode: 500,
@@ -128,12 +128,14 @@ encontrarSolicitud = async (req, res) => {
     left outer join status_domain as std on sl.status = std.codigo_status 
     left outer join paises_domain pd on sl.pais = pd.iso2 
     where id_solicitud = $1 
-    ${req.tipoUsuario === 'PS' ? 'and email = \''+req.email+'\' ' : ' '}`, [idSolicitud.toString()]);
+    ${req.tipoUsuario === 'PX' ? 'and email = \''+req.email+'\' ' : ' '}`, [idSolicitud.toString()]);
+    console.log(req.tipoUsuario)
+    console.log(req.email, result.rows[0].email)
      if (result.rows.length > 0) {
       result.rows[0]["archivos"] = []
       fileNames.forEach((files)=>{
           if(files.includes(result.rows[0].id_solicitud.toString() + "_")){
-            console.log(files)
+            // console.log(files)
             result.rows[0].archivos.push(files)
           }
       })
@@ -152,7 +154,7 @@ encontrarSolicitud = async (req, res) => {
     } else {
       res.send({
         statusCode: 500,
-        body: "No se encontró la solicitud con la cédula especificada."
+        body: "No se encontró la solicitud con el ID solicitado."
       });
     }
   } catch (error) {
@@ -190,7 +192,8 @@ buscarSolicitud = async (req, res) => {
     or num_cedula_licenciatura like $1
     and eliminado = \'0\'
     ${req.tipoUsuario === 'PS'
-    ? 'and email = \''+req.correo+'\'' : ' '}`, ['%' + body.query + '%']);
+    ? 'and email = \''+req.correo+'\'' : ' '}
+    order by id_solicitud desc`, ['%' + body.query + '%']);
     if (result.rows.length > 0) {
       let noRecords = result.rows.length;
       let noPages = Math.ceil(result.rows.length / recordsPerPage)
@@ -345,7 +348,7 @@ popularSolicitudes = async (body) => {
     let nextId = await pool.query('select id_solicitud from solicitudes q order by id_solicitud desc limit 1');
     body.idSolicitud = nextId.rows.length > 0 ? nextId.rows[0].id_solicitud + 1 : 1;
     response = await pool.query(`
-    insert into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
+    into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
     documento_titulo, domicilio, email, especialidad, estatus, id_solicitud,
     institucion_educativa, licenciatura, nombre_completo, telefono, eliminado, 
     num_cedula_especialidad, num_cedula_licenciatura, fecha, sexo, status, pais
