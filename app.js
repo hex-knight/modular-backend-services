@@ -160,7 +160,7 @@ app.post('/updateSolicitud', verifyToken, verifySolicitudes, updateSolicitud);
 app.get('/deleteSolicitud/:idSolicitud', verifyToken, verifySolicitudes, deleteSolicitud);
 
 app.get('/mostrarSolicitud/:idSolicitud', 
-// verifyToken, verifySolicitudes,
+verifyToken, verifySolicitudes,
 encontrarSolicitud);
 
 app.post('/buscarSolicitud/p:numPag', verifyToken, verifySolicitudes ,buscarSolicitud);
@@ -216,10 +216,6 @@ async function generarUsuarios(req, res){
 app.get('/getUsuarios/p:numPag', verifyToken, verifySuperUser, getUsuarios);
 
 app.post('/nuevoUsuario', insertUsuario);
-
-// app.get('/popularUsuarios', generarUsuarios);
-
-// app.post('/nuevoUsuario', verifyNewUser, insertUsuario);
 
 app.post('/updateUsuario', verifyToken, verifySuperUser, updateUsuario);
 
