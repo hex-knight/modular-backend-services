@@ -9,13 +9,6 @@ const pool = new Pool({
   password: 'rossetastoned001',
   port: 5432,
 })
-// const pool = new Pool({
-//   user: 'postgres',
-//   host: 'localhost',
-//   database: 'postgres',
-//   password: 'hex',
-//   port: 5432,
-// })
 
 
 
@@ -84,7 +77,7 @@ insertUsuario = async (req, res) => {
   }
   try {
     let correo = await pool.query(`select correo from usuarios where correo = $1`, [body.correo]);
-    // revisar si ya existe el correo
+    
     if (correo.rows.length > 0) {
       res.send({
         statusCode: 500,

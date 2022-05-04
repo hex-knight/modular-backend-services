@@ -8,13 +8,6 @@ const pool = new Pool({
   password: 'rossetastoned001',
   port: 5432,
 })
-// const pool = new Pool({
-//   user: 'postgres',
-//   host: 'localhost',
-//   database: 'postgres',
-//   password: 'hex',
-//   port: 5432,
-// })
 
 renameKeys = (obj) => {
   Object.keys(obj).map((key) => {

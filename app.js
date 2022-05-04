@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 var fs = require('fs');
-// const uploadFile = require("./Middleware/Upload");
+
 const { getSolicitudes, insertSolicitud, deleteSolicitud, encontrarSolicitud, buscarSolicitud, reportesSolicitudes, popularSolicitudes, cambiarStatus, nextId, getId, generarResumen,
 } = require('./Controllers/SolicitudesController');
 const {
@@ -58,29 +58,28 @@ function verifyToken(req, res, next) {
   }
 }
 
-//      QUEJAS
-// const { faker } = require('@faker-js/faker');
-// async function generarQuejas(req, res){
-//   let body = {}
-//   for(var i = 0; i < 50; i++){
-//     body = {
-//       descripcion : faker.random.words(3),
-//       nombreCompleto : faker.name.findName(),
-//       licenciatura : faker.random.word(),
-//       numeroCedulaEsp : faker.random.number(max = 9999999),
-//       numeroCedulaLic : faker.random.number(max = 9999999)
-//     }
-//     var result = await popularQuejas(body);
-//     if(result === 1){
-//       res.send(500)
-//     }
-//   }
-//   res.send(200)
-// }
+//QUEJAS
+async function generarQuejas(req, res){
+  let body = {}
+  for(var i = 0; i < 50; i++){
+    body = {
+      descripcion : faker.random.words(3),
+      nombreCompleto : faker.name.findName(),
+      licenciatura : faker.random.word(),
+      numeroCedulaEsp : faker.random.number(max = 9999999),
+      numeroCedulaLic : faker.random.number(max = 9999999)
+    }
+    var result = await popularQuejas(body);
+    if(result === 1){
+      res.send(500)
+    }
+  }
+  res.send(200)
+}
 
 app.get('/getQuejas/p:numPag', verifyToken, verifyQuejas,  getQuejas);
 
-// app.get('/popularQuejas', generarQuejas);
+app.get('/popularQuejas', generarQuejas);
 
 app.post('/newQueja', verifyToken, verifyQuejas, insertQueja);
 

@@ -5,7 +5,7 @@ var fs = require('fs')
 
 
 const { readFile, stat, writeFile } = require("fs/promises");
-// import fs from 'fs'
+
 global.__basedir = __dirname;
 
 armarCuerpo = (body) => {

@@ -372,13 +372,12 @@ updateSolicitud = async (req, res) => {
     if (search.rows.length > 0) {
       const update = await pool.query(`UPDATE SOLICITUDES SET documento_cedula = $1, documento_identificacion = $2, documento_solicitud = $3, 
     documento_titulo = $4, domicilio = $5, email = $6, especialidad = $7, institucion_educativa = $8, licenciatura = $9,
-    nombre_completo = $10, telefono = $11, num_cedula_especialidad = $12, num_cedula_licenciatura = $13, pais = $15, sexo = $16 WHERE id_solicitud = $14`,
+    nombre_completo = $10, telefono = $11, num_cedula_especialidad = $12, num_cedula_licenciatura = $13 WHERE id_solicitud = $14`,
         [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud,
         body.documentoTitulo, body.domicilio, body.email,
         body.especialidad, body.institucionEducativa, body.licenciatura, 
         body.nombreCompleto, body.telefono,body.numCedulaEspecialidad, 
-        body.numCedulaLicenciatura, body.idSolicitud, body.pais, 
-        body.sexo]);
+        body.numCedulaLicenciatura, body.idSolicitud]);
       res.send({
         statusCode: 200,
         body: `Solicitud ${body.idSolicitud} actualizada correctamente.`
