@@ -183,15 +183,15 @@ buscarSolicitud = async (req, res) => {
     from solicitudes s2 
     left outer join status_domain as std on s2.status = std.codigo_status 
     join paises_domain pd on s2.pais = pd.iso2 
-    where CAST(id_solicitud AS VARCHAR(9)) LIKE $1
+    where (CAST(id_solicitud AS VARCHAR(9)) LIKE $1
     or documento_cedula like $1 or domicilio like $1
     or email like $1 or especialidad like $1 or institucion_educativa like $1
     or nombre_completo like $1 or telefono like $1 or num_cedula_especialidad like $1
-    or num_cedula_licenciatura like $1
-    and eliminado = \'0\'
-    ${req.tipoUsuario === 'PS'
-    ? 'and email = \''+req.correo+'\'' : ' '}
+    or num_cedula_licenciatura like $1 )
+    and eliminado = \'0\' 
+    ${req.tipoUsuario === 'PS' ?`and email = \'${req.email}\' ` : ' '}
     order by id_solicitud desc`, ['%' + body.query + '%']);
+    // console.log(result.rows)
     if (result.rows.length > 0) {
       let noRecords = result.rows.length;
       let noPages = Math.ceil(result.rows.length / recordsPerPage)
