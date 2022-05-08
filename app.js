@@ -120,15 +120,21 @@ function verifyQuejas(req, res, next) {
 
 async function generarSolicitudes(req, res){
   let body = {}
-  for(var i = 0; i < 500; i++){ //hasta el id
+  faker.setLocale('es_MX')
+  for(var i = 656; i < 657; i++){ //hasta el id
     body = {
+      idSolicitud : i,
       documentoCedula : 'documento cedula',
       documentoIdentificacion : 'documento identificacion',
       documentoSolicitud : 'documento solicitud',
       documentoTitulo : 'documento titulo',
       domicilio : faker.address.streetAddress(),
-      email : `usuario${faker.random.number(max = 20)}@usuarios.com`,
-      especialidad : faker.random.word(),
+      email : 'martin@usuario.com',
+      // email : `usuario${faker.random.number(max = 20)}@usuarios.com`,
+      especialidad : faker.random.arrayElement([
+        'Anatomía Patológica','Cardiología Clínica', 'Cirugía Pediátrica',
+      'Cirugía General', 'Cirugía Plástica y Reconstrucción','Angiología y Cirugía Vascular',
+    'Dermatología']),
       institucionEducativa : faker.random.arrayElement([
         'Universidad de Guadalajara', 'UNAM',
         'Universidad Autónoma De Guadalajara','ITESO'
@@ -137,18 +143,18 @@ async function generarSolicitudes(req, res){
         'Médico Cirujano y Partero', 'Cirujano Dentista', 
         'Enfermería', 'Nutrición', 'Psicología', 'Ciencias Forenses'
       ]),
-      nombreCompleto: faker.name.findName(),
-      telefono : faker.random.number(max = 99999999),
-      numCedulaEspecialidad : faker.random.number(min= 1000000, max = 9999999),
-      numCedulaLicenciatura : faker.random.number(min= 1000000, max = 9999999),
+      nombreCompleto: `${faker.name.firstName()} ${faker.name.lastName()} ${faker.name.lastName()}`,
+      telefono : faker.phone.phoneNumber('33#-###-###'),
+      numCedulaEspecialidad : `00${faker.random.number(min= 100000, max = 999999)}`,
+      numCedulaLicenciatura :  `00${faker.random.number(min= 100000, max = 999999)}`,
       sexo: faker.random.arrayElement(['H', 'M']),
       status: 'SR',
       pais: faker.random.arrayElement(['MX', 'BO', 'CA', 'DE', 'US' ]),
-      fecha: `${faker.random.arrayElement(['2020','2021','2022'])}-${faker.random.arrayElement(['01','02','03','04','05','06','07','08','09','10','11','12'])}-${faker.random.arrayElement([
+      fecha: `${faker.random.arrayElement(['2020','2021'])}-${faker.random.arrayElement(['01','02','03','04','05','06','07','08','09','10','11','12'])}-${faker.random.arrayElement([
         '01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28'])}`
     }
     var result = await popularSolicitudes(body);
-    console.log(`${i} : ${result}`)
+    console.log(`${i} : ${result==0?'OK':'Error'}`)
     if(result === 1){
       console.log(body);
       res.send(500)
@@ -479,7 +485,7 @@ app.post("/cargarQuejas", verifyToken, verifyQuejas, cargarQuejas);
 
 app.post('/generarResumen',  generarResumen);
 
-
+app.get('/cleanDb')
 
   //Run Backend Services
   app.listen(port)

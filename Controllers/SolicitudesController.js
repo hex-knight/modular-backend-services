@@ -182,10 +182,10 @@ buscarSolicitud = async (req, res) => {
     from solicitudes s2 
     left outer join status_domain as std on s2.status = std.codigo_status 
     join paises_domain pd on s2.pais = pd.iso2 
-    where (CAST(id_solicitud AS VARCHAR(9)) LIKE $1
-    or documento_cedula like $1 or domicilio like $1
-    or email like $1 or especialidad like $1 or institucion_educativa like $1
-    or nombre_completo like $1 or telefono like $1 or num_cedula_especialidad like $1
+    where (CAST(id_solicitud AS VARCHAR(9)) LIKE $1 
+    or domicilio like $1 
+    or email like $1 or especialidad like $1 or institucion_educativa like $1 
+    or nombre_completo like $1 or telefono like $1 or num_cedula_especialidad like $1 
     or num_cedula_licenciatura like $1 )
     and eliminado = \'0\' 
     ${req.tipoUsuario === 'PS' ?`and email = \'${req.email}\' ` : ' '}
@@ -342,21 +342,36 @@ insertSolicitud = async (body) => {
 
 popularSolicitudes = async (body) => {
   try {
+    //INSERT
     let nextId = await pool.query('select id_solicitud from solicitudes q order by id_solicitud desc limit 1');
     body.idSolicitud = nextId.rows.length > 0 ? nextId.rows[0].id_solicitud + 1 : 1;
     response = await pool.query(`
-    into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
-    documento_titulo, domicilio, email, especialidad, estatus, id_solicitud,
-    institucion_educativa, licenciatura, nombre_completo, telefono, eliminado, 
-    num_cedula_especialidad, num_cedula_licenciatura, fecha, sexo, status, pais
-    ) values (
-    $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, $15, $16, $17, $18)`,
+    insert into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
+      documento_titulo, domicilio, email, especialidad, estatus, id_solicitud,
+      institucion_educativa, licenciatura, nombre_completo, telefono, eliminado, 
+      num_cedula_especialidad, num_cedula_licenciatura, fecha, sexo, status, pais
+      ) values (
+      $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, $15, $16, $17, $18)`,
       [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud,
-      body.documentoTitulo, body.domicilio, body.email,
-      body.especialidad, body.idSolicitud, body.institucionEducativa,
-      body.licenciatura, body.nombreCompleto, body.telefono,
-      body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.fecha,
-       body.sexo, body.status, body.pais])
+          body.documentoTitulo, body.domicilio, body.email,
+          body.especialidad, body.idSolicitud, body.institucionEducativa,
+          body.licenciatura, body.nombreCompleto, body.telefono,
+          body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.fecha,
+           body.sexo, body.status, body.pais])
+
+    //UPDATE
+    // response = await pool.query(`
+    // update solicitudes set documento_cedula=$1, documento_identificacion=$2, documento_solicitud=$3,
+    // documento_titulo=$4, domicilio=$5, especialidad=$7, estatus='1',
+    // institucion_educativa=$8, licenciatura=$9, nombre_completo=$10, telefono=$11, eliminado='0', 
+    // num_cedula_especialidad=$12, num_cedula_licenciatura=$13, fecha=$14, sexo=$15,  pais=$16 
+    // where email = $6`,
+    //   [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud,
+    //   body.documentoTitulo, body.domicilio, body.email,
+    //   body.especialidad, body.institucionEducativa,
+    //   body.licenciatura, body.nombreCompleto, body.telefono,
+    //   body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.fecha,
+    //    body.sexo, body.pais])
     return 0;
   } catch (error) {
     console.error(error);
