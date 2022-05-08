@@ -94,7 +94,6 @@ getSolicitudes = async (req, res) => {
           body: "Número de página inválido.",
         })
       } else {
-        console.log(fileNames)
         res.send({
           statusCode: 200,
           body: {
@@ -133,7 +132,7 @@ encontrarSolicitud = async (req, res) => {
       result.rows[0]["archivos"] = []
       fileNames.forEach((files)=>{
           if(files.includes(result.rows[0].id_solicitud.toString() + "_")){
-            // console.log(files)
+            
             result.rows[0].archivos.push(files)
           }
       })
@@ -191,7 +190,7 @@ buscarSolicitud = async (req, res) => {
     and eliminado = \'0\' 
     ${req.tipoUsuario === 'PS' ?`and email = \'${req.email}\' ` : ' '}
     order by id_solicitud desc`, ['%' + body.query + '%']);
-    // console.log(result.rows)
+    
     if (result.rows.length > 0) {
       let noRecords = result.rows.length;
       let noPages = Math.ceil(result.rows.length / recordsPerPage)

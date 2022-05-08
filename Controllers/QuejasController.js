@@ -148,7 +148,6 @@ cargarQuejas = (req, res) =>{
     let quejas = [];
     if(body.quejas.length > 0){
       quejas = body.quejas;
-      console.log(quejas.length)
       var result = 0;1
       quejas.forEach(queja => {
         result = guardarQueja(queja);

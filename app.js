@@ -402,7 +402,6 @@ const upload = async (req, res) => {
     await uploadFile(req, res);
     let body = req.body;
     body.idSolicitud = _nextId;
-    console.log(body);
     let response = await insertSolicitud(body);
     if(response === 0){
       await uploadFile(req, res);
