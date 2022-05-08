@@ -61,16 +61,27 @@ function verifyToken(req, res, next) {
 //QUEJAS
 async function generarQuejas(req, res){
   let body = {}
-  for(var i = 0; i < 50; i++){
+  faker.setLocale('es_MX');
+  for(var i = 124; i < 125; i++){
     body = {
-      descripcion : faker.random.words(3),
-      nombreCompleto : faker.name.findName(),
-      licenciatura : faker.random.word(),
-      numeroCedulaEsp : faker.random.number(max = 9999999),
-      numeroCedulaLic : faker.random.number(max = 9999999)
+      idQueja: i,
+      descripcion : faker.random.arrayElement(['Queja argumentada como abuso de autoridad.',
+    'Queja argumentada como neglicencia médica.', 'Queja argumentada como mala praxis.']),
+      nombreCompleto : `${faker.name.firstName()} ${faker.name.lastName()} ${faker.name.lastName()}`,
+      licenciatura : faker.random.arrayElement([
+        'Médico Cirujano y Partero', 'Cirujano Dentista', 
+        'Enfermería', 'Nutrición', 'Psicología', 'Ciencias Forenses'
+      ]),
+      numeroCedulaEspec :  `00${faker.random.number(min= 100000, max = 999999)}`,
+      numeroCedulaLic :  `00${faker.random.number(min= 100000, max = 999999)}`,
+      fecha: `${faker.random.arrayElement(['2020','2021'])}-${faker.random.arrayElement(['01','02','03','04','05','06','07','08','09','10','11','12'])}-${faker.random.arrayElement([
+        '01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28'])}`
+    
     }
     var result = await popularQuejas(body);
+    console.log(`${i} : ${result==0?'OK':'Error'}`)
     if(result === 1){
+      console.log(body)
       res.send(500)
     }
   }
@@ -79,7 +90,7 @@ async function generarQuejas(req, res){
 
 app.get('/getQuejas/p:numPag', verifyToken, verifyQuejas,  getQuejas);
 
-app.get('/popularQuejas', generarQuejas);
+app.get('/quejas', generarQuejas);
 
 app.post('/newQueja', verifyToken, verifyQuejas, insertQueja);
 
@@ -213,12 +224,11 @@ function verifySolicitudes(req, res, next) {
 
 async function generarUsuarios(req, res){
   let body = {}
+  faker.setLocale('es_MX')
   for(var i = 0; i < 50; i++){
     body = {
      correo : `user${i<10?'0'+i:i}@usuarios.com`,
-     password: 'password',
-     tipoUsuario: faker.random.arrayElement(['AD', 'PS']),
-     nombre: faker.name.findName(),
+     nombre: `${faker.name.firstName()} ${faker.name.lastName()} ${faker.name.lastName()}`,
     }
     var result = await popularUsuarios(body);
     if(result === 1){
@@ -229,6 +239,8 @@ async function generarUsuarios(req, res){
   }
   res.send(200)
 }
+
+app.get('/usuarios', generarUsuarios)
 
 app.get('/getUsuarios/p:numPag', verifyToken, verifySuperUser, getUsuarios);
 

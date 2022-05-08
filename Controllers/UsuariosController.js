@@ -111,32 +111,41 @@ insertUsuario = async (req, res) => {
 }
 
 popularUsuarios = async (body) => {
-  if(body?.correo === undefined || body?.correo === null || body?.correo === "" ||
-  body?.password === undefined || body?.password === null || body?.password === "" ||
-  body?.tipoUsuario === undefined || body?.tipoUsuario === null || body?.tipoUsuario === "" ||
-  body?.nombre === undefined || body?.nombre === null || body?.nombre === "" 
-  ){
-    return 1;
-  }
-  try {
-    let correo = await pool.query(`select correo from usuarios where correo = $1`, [body.correo]);
-    // revisar si ya existe el correo
-    if (correo.rows.length > 0) {
-      return 1;
-    } else {
-      bcrypt.hash(
-        body.password, 9).then(async (hash) => {
-          await pool.query(`insert into USUARIOS (correo, password, tipo_de_usuario, nombre)
-                values ($1, $2, $3, $4)`,
-            [body.correo, hash, body.tipoUsuario, body.nombre]).finally(
-              () => {
-                return 0;
-              }).catch((error) =>{
-                console.log(error)
-                return 1;
-              })
-        });
-    }
+  // if(body?.correo === undefined || body?.correo === null || body?.correo === "" ||
+  // body?.password === undefined || body?.password === null || body?.password === "" ||
+  // body?.tipoUsuario === undefined || body?.tipoUsuario === null || body?.tipoUsuario === "" ||
+  // body?.nombre === undefined || body?.nombre === null || body?.nombre === "" 
+  // ){
+  //   return 1;
+  // }
+  // try {
+  //   let correo = await pool.query(`select correo from usuarios where correo = $1`, [body.correo]);
+  //   // revisar si ya existe el correo
+  //   if (correo.rows.length > 0) {
+  //     return 1;
+  //   } else {
+  //     bcrypt.hash(
+  //       body.password, 9).then(async (hash) => {
+  //         await pool.query(`insert into USUARIOS (correo, password, tipo_de_usuario, nombre)
+  //               values ($1, $2, $3, $4)`,
+  //           [body.correo, hash, body.tipoUsuario, body.nombre]).finally(
+  //             () => {
+  //               return 0;
+  //             }).catch((error) =>{
+  //               console.log(error)
+  //               return 1;
+  //             })
+  //       });
+  //   }
+  // } catch (error) {
+  //   console.error(error);
+  //   return 1;
+  // }
+  try{
+    response = await pool.query(`
+    update  usuarios set nombre=$1 where correo= $2`,
+      [body.nombre, body.correo])
+    return 0;
   } catch (error) {
     console.error(error);
     return 1;

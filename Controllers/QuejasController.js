@@ -242,8 +242,8 @@ buscarQueja = async (req, res) =>{
         body: "Error. Favor de revisar su búsqueda."
       });
     }
-    let result = await pool.query(`select * from quejas where CAST(id_queja AS VARCHAR(9)) LIKE $1 or 
-    descripcion like $1 or licenciatura like $1 or nombre_completo like $1 or numero_cedula_espec like $1
+    let result = await pool.query(`select * from quejas where CAST(id_queja AS VARCHAR(9)) LIKE $1 
+    or licenciatura like $1 or nombre_completo like $1 or numero_cedula_espec like $1
     or numero_cedula_lic like $1 `,['%'+body.query+'%']);
     
     if(result.rows.length > 0){
@@ -284,6 +284,40 @@ buscarQueja = async (req, res) =>{
       statusCode: 500,
       body: "Ocurrió un error al buscar."
     });
+  }
+}
+
+popularQuejas = async (body) => {
+  try {
+    //INSERT
+    // let nextId = await pool.query('select id_solicitud from solicitudes q order by id_solicitud desc limit 1');
+    // body.idSolicitud = nextId.rows.length > 0 ? nextId.rows[0].id_solicitud + 1 : 1;
+    // response = await pool.query(`
+    // insert into solicitudes (documento_cedula, documento_identificacion, documento_solicitud,
+    //   documento_titulo, domicilio, email, especialidad, estatus, id_solicitud,
+    //   institucion_educativa, licenciatura, nombre_completo, telefono, eliminado, 
+    //   num_cedula_especialidad, num_cedula_licenciatura, fecha, sexo, status, pais
+    //   ) values (
+    //   $1, $2, $3, $4, $5, $6, $7, '1', $8, $9, $10, $11, $12, '0' , $13, $14, $15, $16, $17, $18)`,
+    //   [body.documentoCedula, body.documentoIdentificacion, body.documentoSolicitud,
+    //       body.documentoTitulo, body.domicilio, body.email,
+    //       body.especialidad, body.idSolicitud, body.institucionEducativa,
+    //       body.licenciatura, body.nombreCompleto, body.telefono,
+    //       body.numCedulaEspecialidad, body.numCedulaLicenciatura, body.fecha,
+    //        body.sexo, body.status, body.pais])
+
+    //UPDATE
+    response = await pool.query(`
+    update  quejas set descripcion=$1, fecha=$2, licenciatura=$3,
+    nombre_completo=$4, numero_cedula_espec=$5, numero_cedula_lic=$6 
+    where id_queja = $7`,
+      [body.descripcion, body.fecha, body.licenciatura,
+      body.nombreCompleto, body.numeroCedulaEspec, body.numeroCedulaLic,
+      body.idQueja])
+    return 0;
+  } catch (error) {
+    console.error(error);
+    return 1;
   }
 }
 
@@ -330,5 +364,6 @@ module.exports = {
   encontrarQueja,
   buscarQueja,
   reportesQuejas,
-  cargarQuejas
+  cargarQuejas,
+  popularQuejas
 }
