@@ -255,7 +255,7 @@ app.post('/buscarUsuario', verifyToken, verifyUsuarios, buscarUsuario);
 function verifyNewUser(req, res, next) {
   try{
     let body = req.body;
-    if (body.tipoUsuario === 'SU' || body.tipoUsuario === 'AD') {
+    if (body.tipoUsuario === 'AU') {
       const bearerHeader = req.headers['authorization'];
       if (typeof bearerHeader !== 'undefined') {
         const bearerToken = bearerHeader.split(" ")[1];
@@ -270,7 +270,7 @@ function verifyNewUser(req, res, next) {
           } else {
             const valid = await validateUser(authData.user.correo)
             const tipoUsuario = authData.user.tipo_de_usuario
-            if (valid && tipoUsuario === 'SU') {
+            if (valid && tipoUsuario === 'AU') {
               next();
             } else {
               res.send({
